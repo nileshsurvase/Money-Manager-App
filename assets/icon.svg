@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Orange Background -->
+  <rect width="512" height="512" rx="80" fill="#f97316"/>
+  
+  <!-- Subtle gradient overlay -->
+  <defs>
+    <radialGradient id="bgGradient" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#ea580c;stop-opacity:0.2"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Gradient overlay -->
+  <rect width="512" height="512" rx="80" fill="url(#bgGradient)"/>
+  
+  <!-- Main Lightning Bolt - Larger and Centered -->
+  <path d="M296 60 L180 280 L240 280 L216 450 L332 230 L272 230 L296 60 Z" 
+        fill="white" 
+        filter="url(#glow)" 
+        opacity="0.98"/>
+  
+  <!-- Energy particles around the lightning -->
+  <circle cx="160" cy="120" r="5" fill="white" opacity="0.7"/>
+  <circle cx="140" cy="140" r="3" fill="white" opacity="0.6"/>
+  <circle cx="370" cy="130" r="5" fill="white" opacity="0.7"/>
+  <circle cx="390" cy="150" r="3" fill="white" opacity="0.6"/>
+  
+  <circle cx="120" cy="350" r="4" fill="white" opacity="0.5"/>
+  <circle cx="140" cy="370" r="2" fill="white" opacity="0.6"/>
+  <circle cx="380" cy="340" r="4" fill="white" opacity="0.5"/>
+  <circle cx="400" cy="360" r="2" fill="white" opacity="0.6"/>
+  
+  <!-- Power lines/energy waves -->
+  <path d="M100 200 Q120 190 140 200 T180 200" stroke="white" stroke-width="2" fill="none" opacity="0.4"/>
+  <path d="M330 200 Q350 190 370 200 T410 200" stroke="white" stroke-width="2" fill="none" opacity="0.4"/>
+  <path d="M100 320 Q120 310 140 320 T180 320" stroke="white" stroke-width="2" fill="none" opacity="0.4"/>
+  <path d="M330 320 Q350 310 370 320 T410 320" stroke="white" stroke-width="2" fill="none" opacity="0.4"/>
+</svg> 
