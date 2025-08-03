@@ -1,6 +1,6 @@
-# 💰 MoneyManager Premium
+# ⚡ ClarityOS - Life Operating System
 
-A beautiful, modern expense tracking and budget management application built with React, featuring premium glassmorphism UI, Indian currency support, Google authentication, and cloud database integration.
+A comprehensive life management platform combining Money Manager, Personal Diary, CoreOS productivity suite, and FreedomOS financial planning. Built with React, featuring premium glassmorphism UI, cloud sync, and native mobile app support.
 
 ## ✨ Features
 

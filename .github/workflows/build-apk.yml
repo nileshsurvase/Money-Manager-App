@@ -45,7 +45,7 @@ jobs:
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: money-manager-apk
+        name: clarityos-apk
         path: android/app/build/outputs/apk/debug/app-debug.apk
         retention-days: 30
         
@@ -54,10 +54,10 @@ jobs:
         APK_PATH="android/app/build/outputs/apk/debug/app-debug.apk"
         if [ -f "$APK_PATH" ]; then
           APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
-          echo "✅ APK built successfully!"
+          echo "✅ ClarityOS APK built successfully!"
           echo "📱 APK Size: $APK_SIZE"
           echo "📁 APK Path: $APK_PATH"
-          echo "🚀 Ready for installation!"
+          echo "⚡ ClarityOS is ready for installation!"
         else
           echo "❌ APK build failed!"
           exit 1

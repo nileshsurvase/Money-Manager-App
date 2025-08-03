@@ -87,14 +87,14 @@ export const AppProvider = ({ children }) => {
     },
     'coreos': {
       id: 'coreos',
-      name: 'CoreOS (Coming Soon)',
+      name: 'CoreOS',
       icon: '⚡',
       description: 'Life Management System',
       dashboardRoute: '/coreos'
     },
     'freedomos': {
       id: 'freedomos',
-      name: 'FreedomOS (Coming Soon)',
+      name: 'FreedomOS',
       icon: '🏆',
       description: 'Financial Freedom Platform',
       dashboardRoute: '/freedomos'

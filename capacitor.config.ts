@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.nilesh.moneymanager',
-  appName: 'Money Manager',
+  appId: 'com.nilesh.clarityos',
+  appName: 'ClarityOS',
   webDir: 'dist',
   bundledWebRuntime: false,
   server: {

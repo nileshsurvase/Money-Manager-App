@@ -1,5 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
-  <rect width="192" height="192" rx="30" fill="#1f2937"/>
-  <circle cx="96" cy="96" r="70" fill="#f97316" opacity="0.2"/>
-  <text x="96" y="110" text-anchor="middle" fill="#f97316" font-size="48" font-weight="bold">C</text>
-</svg> 
+  <!-- Orange Background -->
+  <rect width="192" height="192" rx="30" fill="#f97316"/>
+  
+  <!-- Main Lightning Bolt -->
+  <path d="M105 30 L75 90 L97 90 L90 161 L120 101 L97 101 L105 30 Z" 
+        fill="white" 
+        opacity="0.95"/>
+  
+  <!-- CoreOS Text -->
+  <text x="96" y="175" text-anchor="middle" fill="white" font-size="14" font-weight="bold" opacity="0.9">CoreOS</text>
+</svg>

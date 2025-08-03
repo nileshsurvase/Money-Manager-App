@@ -204,33 +204,15 @@ const Layout = ({ children }) => {
                 transition={{ type: "spring", stiffness: 400 }}
               >
                 <div className="flex items-center space-x-3">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${
-                    currentApp === 'my-diary' 
-                      ? 'bg-gradient-to-br from-emerald-600 to-green-700' 
-                      : currentApp === 'goals'
-                      ? 'bg-gradient-to-br from-violet-600 to-purple-700'
-                      : 'bg-gradient-to-br from-orange-600 to-red-700'
-                  }`}>
-                    {currentApp === 'my-diary' ? (
-                      <span className="text-white text-lg">📖</span>
-                    ) : currentApp === 'goals' ? (
-                      <span className="text-white text-lg">🎯</span>
-                    ) : (
-                      <span className="text-white text-lg">💰</span>
-                    )}
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg bg-gradient-to-br from-orange-500 to-orange-600">
+                    <span className="text-white text-lg">⚡</span>
                   </div>
                   <div className="text-left">
-                    <h1 className={`text-lg font-bold bg-clip-text text-transparent ${
-                      currentApp === 'my-diary'
-                        ? 'bg-gradient-to-r from-emerald-600 to-green-600 dark:from-emerald-400 dark:to-green-400'
-                        : currentApp === 'goals'
-                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400'
-                        : 'bg-gradient-to-r from-orange-600 to-red-600 dark:from-orange-400 dark:to-red-400'
-                    }`}>
-                      {currentAppInfo.name}
+                    <h1 className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-orange-600 to-red-600 dark:from-orange-400 dark:to-red-400">
+                      ClarityOS
                     </h1>
                     <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                      {currentAppInfo.description}
+                      Life Operating System • {currentAppInfo.name}
                     </p>
                   </div>
                 </div>
@@ -417,36 +399,12 @@ const Layout = ({ children }) => {
                     onClick={() => setAppDropdownOpen(!appDropdownOpen)}
                     className="flex items-center space-x-3 p-1 rounded-lg hover:bg-orange-50/50 dark:hover:bg-gray-800/50 transition-all duration-300"
                   >
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shadow-md ${
-                      currentApp === 'my-diary' 
-                        ? 'bg-gradient-to-br from-emerald-500 to-green-600' 
-                        : currentApp === 'goals'
-                        ? 'bg-gradient-to-br from-blue-500 to-indigo-600'
-                        : currentApp === 'freedomos'
-                        ? 'bg-gradient-to-br from-yellow-500 to-orange-600'
-                        : 'bg-gradient-to-br from-orange-500 to-red-500'
-                    }`}>
-                      {currentApp === 'my-diary' ? (
-                        <BookOpen className="h-4 w-4 text-white" />
-                      ) : currentApp === 'goals' ? (
-                        <Target className="h-4 w-4 text-white" />
-                      ) : currentApp === 'freedomos' ? (
-                        <Trophy className="h-4 w-4 text-white" />
-                      ) : (
-                        <Sparkles className="h-4 w-4 text-white" />
-                      )}
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-md bg-gradient-to-br from-orange-500 to-orange-600">
+                      <span className="text-white text-sm">⚡</span>
                     </div>
                     <div className="text-left">
-                      <h1 className={`text-base font-bold bg-clip-text text-transparent ${
-                        currentApp === 'my-diary'
-                          ? 'bg-gradient-to-r from-emerald-600 to-green-600 dark:from-emerald-400 dark:to-green-400'
-                          : currentApp === 'goals'
-                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400'
-                          : currentApp === 'freedomos'
-                          ? 'bg-gradient-to-r from-yellow-600 to-orange-600 dark:from-yellow-400 dark:to-orange-400'
-                          : 'bg-gradient-to-r from-orange-600 to-red-600 dark:from-orange-400 dark:to-red-400'
-                      }`}>
-                        {currentAppInfo.name}
+                      <h1 className="text-base font-bold bg-clip-text text-transparent bg-gradient-to-r from-orange-600 to-red-600 dark:from-orange-400 dark:to-red-400">
+                        ClarityOS
                       </h1>
                     </div>
                     <ChevronDown className={`h-3 w-3 text-gray-500 transition-transform duration-200 ${
@@ -606,25 +564,17 @@ const Layout = ({ children }) => {
             <Menu className="h-6 w-6" />
           </motion.button>
 
-          {/* Logo and App Name - Always Visible */}
+          {/* ClarityOS Logo and Brand - Always Visible */}
           <div className="flex items-center space-x-3 flex-1 lg:flex-none min-w-0">
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-lg flex-shrink-0 ${
-              currentApp === 'my-diary' 
-                ? 'bg-gradient-to-br from-emerald-600 to-green-700' 
-                : currentApp === 'goals'
-                ? 'bg-gradient-to-br from-violet-600 to-purple-700'
-                : currentApp === 'freedomos'
-                ? 'bg-gradient-to-br from-yellow-600 to-orange-700'
-                : 'bg-gradient-to-br from-orange-600 to-red-700'
-            }`}>
-              {currentAppInfo.icon}
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg bg-gradient-to-br from-orange-500 to-orange-600 flex-shrink-0">
+              <span className="text-white text-xl">⚡</span>
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate">
-                {currentAppInfo.name}
+              <h1 className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-orange-600 to-red-600 dark:from-orange-400 dark:to-red-400 truncate">
+                ClarityOS
               </h1>
               <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
-                {currentAppInfo.description}
+                Life Operating System • {currentAppInfo.name}
               </p>
             </div>
           </div>
