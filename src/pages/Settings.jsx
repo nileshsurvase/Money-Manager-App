@@ -141,7 +141,7 @@ ActionButton.displayName = 'ActionButton';
 const Settings = memo(() => {
   const { isDark, toggleTheme } = useTheme();
   const { currency, setCurrency, currencies } = useCurrency();
-  const { toast } = useToast();
+  const toast = useToast();
   
   const [settings, setSettings] = useState({
     currency: 'USD',
@@ -226,7 +226,7 @@ const Settings = memo(() => {
         
         toast.success('Data imported successfully!');
         setTimeout(() => window.location.reload(), 1000);
-      } catch (error) {
+    } catch (error) {
         console.error('Import error:', error);
         toast.error('Failed to import data');
       } finally {
@@ -240,10 +240,10 @@ const Settings = memo(() => {
 
   const deleteAllData = useCallback(async () => {
     try {
-      Object.values(STORAGE_KEYS).forEach(key => {
-        localStorage.removeItem(key);
-      });
-      
+    Object.values(STORAGE_KEYS).forEach(key => {
+      localStorage.removeItem(key);
+    });
+    
       toast.success('All data deleted successfully!');
       setShowDeleteModal(false);
       setTimeout(() => window.location.reload(), 1000);
@@ -277,7 +277,7 @@ const Settings = memo(() => {
         </div>
         <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
           Settings
-        </h1>
+            </h1>
         <p className="text-gray-600 dark:text-gray-400">
           Customize your experience
         </p>
@@ -323,35 +323,35 @@ const Settings = memo(() => {
       </motion.div>
 
       {/* Appearance & Preferences */}
-      <motion.div
+          <motion.div
         variants={settingsCardAnimation}
         initial="initial"
         animate="animate"
         transition={{ delay: 0.2 }}
       >
         <Card className="border-purple-200 dark:border-purple-800 bg-gradient-to-r from-purple-50/50 to-indigo-50/50 dark:from-purple-950/20 dark:to-indigo-950/20">
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <Palette className="h-5 w-5 text-purple-500" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Palette className="h-5 w-5 text-purple-500" />
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 Appearance & Preferences
-              </h3>
-            </div>
-
+                  </h3>
+                </div>
+                
             <div className="space-y-4">
               {/* Theme Toggle */}
               <div className="flex items-center justify-between p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl border border-purple-200/50 dark:border-purple-700/50">
-                <div className="flex items-center space-x-3">
-                  {isDark ? (
+                    <div className="flex items-center space-x-3">
+                      {isDark ? (
                     <Moon className="h-5 w-5 text-purple-500" />
-                  ) : (
-                    <Sun className="h-5 w-5 text-yellow-500" />
-                  )}
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                      ) : (
+                        <Sun className="h-5 w-5 text-yellow-500" />
+                      )}
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">
                       Dark Mode
-                    </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
                       {isDark ? 'Dark theme active' : 'Light theme active'}
                     </p>
                   </div>
@@ -361,17 +361,17 @@ const Settings = memo(() => {
                   onChange={toggleTheme}
                   color="purple"
                 />
-              </div>
-
+                </div>
+                
               {/* Currency Selection */}
               <div className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl border border-purple-200/50 dark:border-purple-700/50">
                 <div className="flex items-center space-x-3 mb-3">
                   <DollarSign className="h-5 w-5 text-purple-500" />
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                        <div>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">
                       Currency
-                    </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                          </p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
                       Choose your preferred currency
                     </p>
                   </div>
@@ -382,34 +382,34 @@ const Settings = memo(() => {
                     setCurrency(value);
                     handleSettingChange('currency', value);
                   }}
-                  options={currencies.map(curr => ({
+                  options={currencies?.map(curr => ({
                     value: curr.code,
                     label: `${curr.symbol} ${curr.code} - ${curr.name}`
-                  }))}
+                  })) || []}
                   className="w-full"
                 />
               </div>
-            </div>
-          </div>
-        </Card>
-      </motion.div>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
 
-      {/* Data Management */}
-      <motion.div
+          {/* Data Management */}
+          <motion.div
         variants={settingsCardAnimation}
         initial="initial"
         animate="animate"
         transition={{ delay: 0.3 }}
       >
         <Card className="border-emerald-200 dark:border-emerald-800 bg-gradient-to-r from-emerald-50/50 to-green-50/50 dark:from-emerald-950/20 dark:to-green-950/20">
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
               <Database className="h-5 w-5 text-emerald-500" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                Data Management
-              </h3>
-            </div>
-            
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    Data Management
+                  </h3>
+                </div>
+                
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <ActionButton
                 icon={Download}
@@ -443,8 +443,8 @@ const Settings = memo(() => {
                 onClick={generateSampleData}
                 variant="secondary"
               />
-            </div>
-
+          </div>
+          
             {/* Hidden file input */}
             <input
               id="import-file"
@@ -465,14 +465,14 @@ const Settings = memo(() => {
         transition={{ delay: 0.4 }}
       >
         <Card className="border-red-200 dark:border-red-800 bg-gradient-to-r from-red-50/50 to-pink-50/50 dark:from-red-950/20 dark:to-pink-950/20">
-          <div className="space-y-4">
+        <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <AlertTriangle className="h-5 w-5 text-red-500" />
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 Danger Zone
               </h3>
-            </div>
-            
+          </div>
+          
             <ActionButton
               icon={Trash2}
               title="Delete All Data"
@@ -529,13 +529,13 @@ const Settings = memo(() => {
         <div className="space-y-4">
           <div className="flex items-center space-x-3 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
             <AlertTriangle className="h-8 w-8 text-red-500 flex-shrink-0" />
-            <div>
+              <div>
               <p className="font-semibold text-red-900 dark:text-red-100">
                 This action cannot be undone!
-              </p>
-              <p className="text-sm text-red-700 dark:text-red-300">
+                </p>
+                <p className="text-sm text-red-700 dark:text-red-300">
                 All your expenses, budgets, and settings will be permanently deleted.
-              </p>
+                </p>
             </div>
           </div>
           
@@ -563,4 +563,4 @@ const Settings = memo(() => {
 
 Settings.displayName = 'Settings';
 
-export default Settings;
+export default Settings; 
