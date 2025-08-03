@@ -49,9 +49,21 @@ jobs:
     - name: Build Android APK
       run: |
         cd android
+        echo "=== SYSTEM INFO ==="
+        echo "Available memory:"
+        free -h || echo "free command not available"
+        echo "Java Version:"
+        java -version
+        echo "Android SDK:"
+        echo $ANDROID_SDK_ROOT
+        ls -la $ANDROID_SDK_ROOT || echo "SDK root not found"
+        echo "=== GRADLE INFO ==="
         chmod +x ./gradlew
-        ./gradlew clean
-        ./gradlew assembleDebug --stacktrace --info
+        ./gradlew --version
+        echo "=== CLEANING ==="
+        ./gradlew clean --no-daemon --stacktrace
+        echo "=== BUILDING APK ==="
+        ./gradlew assembleDebug --no-daemon --no-parallel --stacktrace --info --warning-mode all
         
     - name: Upload APK
       uses: actions/upload-artifact@v4
