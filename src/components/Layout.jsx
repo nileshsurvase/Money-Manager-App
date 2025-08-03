@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Home, 
@@ -44,7 +44,7 @@ import { useApp } from '../context/AppContext';
 import GoogleAuthButton from './GoogleAuthButton';
 
 
-const Layout = ({ children }) => {
+const Layout = memo(({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [appDropdownOpen, setAppDropdownOpen] = useState(false);
   const { isDark, toggleTheme } = useTheme();
@@ -135,11 +135,11 @@ const Layout = ({ children }) => {
 
   const currentNavigation = getCurrentNavigation();
 
-  const handleAppSwitch = (appId) => {
+  const handleAppSwitch = useCallback((appId) => {
     switchApp(appId);
     setAppDropdownOpen(false);
     setSidebarOpen(false);
-  };
+  }, [switchApp]);
 
   const sidebarVariants = {
     open: { 
@@ -594,6 +594,8 @@ const Layout = ({ children }) => {
       </div>
     </div>
   );
-};
+});
+
+Layout.displayName = 'Layout';
 
 export default Layout; 

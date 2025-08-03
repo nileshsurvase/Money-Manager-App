@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { motion } from 'framer-motion';
 import { 
   DollarSign, 
@@ -39,8 +39,9 @@ import {
   formatNumber,
   formatCurrencyNumber
 } from '../utils/dateHelpers';
+import { cardAnimation, staggerContainer, hoverAnimation } from '../utils/performance';
 
-const Dashboard = () => {
+const Dashboard = memo(() => {
   let formatCurrency, formatAbbreviatedAmount;
   
   try {
@@ -63,14 +64,16 @@ const Dashboard = () => {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const expensesData = await getExpenses();
-      const budgetsData = await getBudgets();
-      const categoriesData = getCategories();
+      const [expensesData, budgetsData, categoriesData] = await Promise.all([
+        getExpenses(),
+        getBudgets(),
+        getCategories()
+      ]);
       
       setExpenses(expensesData);
       setBudgets(budgetsData);
@@ -80,7 +83,7 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Get the current selected month range
   const currentSelectedMonthRange = useMemo(() => {
@@ -97,20 +100,20 @@ const Dashboard = () => {
   }, [currentMonthOffset]);
 
   // Navigate to previous month
-  const goToPreviousMonth = () => {
+  const goToPreviousMonth = useCallback(() => {
     setCurrentMonthOffset(prev => prev - 1);
-  };
+  }, []);
 
   // Navigate to next month
-  const goToNextMonth = () => {
+  const goToNextMonth = useCallback(() => {
     setCurrentMonthOffset(prev => prev + 1);
-  };
+  }, []);
 
   // Handle time filter change and reset month navigation
-  const handleTimeFilterChange = (filter) => {
+  const handleTimeFilterChange = useCallback((filter) => {
     setTimeFilter(filter);
     setCurrentMonthOffset(0); // Reset to current month when switching filters
-  };
+  }, []);
 
   const filteredExpenses = useMemo(() => {
     // If we're navigating to a different month (not current month), use custom month navigation
@@ -259,16 +262,18 @@ const Dashboard = () => {
               >
                 <ChevronLeft className="h-4 w-4 text-gray-600 dark:text-gray-400" />
               </button>
-              <div className="space-y-1 sm:space-y-2 min-w-0 flex-1 text-center">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">
+              <div className="space-y-1 sm:space-y-2 flex-1 text-center px-2">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">
                   {currentSelectedMonthName}
                 </p>
-                <p className="currency-large truncate break-all">
+                <p className="currency-large font-bold text-lg sm:text-xl">
                   {formatCurrencyNumber(totalCurrentPeriod, formatCurrency(0).charAt(0))}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-500 truncate break-all">
-                  ${totalCurrentPeriod.toFixed(2)}
-                </p>
+                {totalCurrentPeriod >= 1000 && (
+                  <p className="text-xs text-gray-500 dark:text-gray-500">
+                    {formatCurrency(totalCurrentPeriod)}
+                  </p>
+                )}
               </div>
               <button
                 onClick={goToNextMonth}
@@ -682,6 +687,8 @@ const Dashboard = () => {
       />
     </div>
   );
-};
+});
+
+Dashboard.displayName = 'Dashboard';
 
 export default Dashboard; 

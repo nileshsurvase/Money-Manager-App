@@ -13,7 +13,6 @@ import {
   AlertTriangle,
   Settings as SettingsIcon,
   Palette,
-  Database,
   FileSpreadsheet,
   Shield,
   HelpCircle,
@@ -25,7 +24,6 @@ import Button from '../components/Button';
 import Input from '../components/Input';
 import Select from '../components/Select';
 import Modal from '../components/Modal';
-import StorageModeToggle from '../components/StorageModeToggle';
 import { useTheme } from '../context/ThemeContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { useToast } from '../components/ToastProvider';
@@ -626,25 +624,7 @@ const Settings = () => {
             </Card>
           </motion.div>
 
-          {/* Storage Mode */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.35 }}
-          >
-            <Card className="border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-900/10">
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Database className="h-5 w-5 text-purple-500" />
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                    Storage Mode
-                  </h3>
-                </div>
-                
-                <StorageModeToggle />
-              </div>
-            </Card>
-          </motion.div>
+
 
           {/* Data Management */}
           <motion.div

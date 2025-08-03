@@ -79,30 +79,8 @@ const GoogleAuthButton = () => {
   };
 
   const handleGoogleLogin = async () => {
-    setLoading(true);
-    try {
-      // Get auth URL from Netlify function
-      const isDev = window.location.hostname === 'localhost';
-      const baseUrl = isDev ? '' : ''; // In dev, Netlify dev proxies functions correctly
-      const response = await fetch(`${baseUrl}/.netlify/functions/auth/url`);
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
-      }
-      
-      const data = await response.json();
-      
-      if (data.authUrl) {
-        window.location.href = data.authUrl;
-      } else {
-        throw new Error('No authentication URL received from server');
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      alert(`Login failed: ${error.message}`);
-      setLoading(false);
-    }
+    // Google login disabled - no action performed
+    return;
   };
 
   const handleLogout = () => {
