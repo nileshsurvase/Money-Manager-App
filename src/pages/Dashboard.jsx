@@ -62,10 +62,6 @@ const Dashboard = memo(() => {
   const [loading, setLoading] = useState(true);
   const [showAllExpenses, setShowAllExpenses] = useState(false);
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
-
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
@@ -84,6 +80,10 @@ const Dashboard = memo(() => {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   // Get the current selected month range
   const currentSelectedMonthRange = useMemo(() => {
