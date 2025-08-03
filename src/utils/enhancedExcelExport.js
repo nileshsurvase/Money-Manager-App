@@ -3,14 +3,8 @@
 import { downloadExcel, generateFilename } from './downloadHelper';
 import { getExpenses, getBudgets, getCategories } from './storage';
 import { 
-  getFromStorage, 
-  DIARY_STORAGE_KEYS,
-  getAllDailyEntries, 
-  getAllWeeklyEntries, 
-  getAllMonthlyEntries,
-  getAllWellnessData,
-  getHabits,
-  getHabitCompletions
+  getEntries,
+  DIARY_STORAGE_KEYS
 } from './diaryStorage';
 
 class EnhancedExcelExporter {
@@ -352,12 +346,12 @@ class EnhancedExcelExporter {
   async createMyDiaryReport() {
     await this.initialize();
 
-    const dailyEntries = getAllDailyEntries();
-    const weeklyEntries = getAllWeeklyEntries();
-    const monthlyEntries = getAllMonthlyEntries();
-    const wellnessData = getAllWellnessData();
-    const habits = getHabits();
-    const habitCompletions = getHabitCompletions();
+    const dailyEntries = getEntries('daily');
+    const weeklyEntries = getEntries('weekly');
+    const monthlyEntries = getEntries('monthly');
+    const wellnessData = JSON.parse(localStorage.getItem(DIARY_STORAGE_KEYS.WELLNESS_DATA) || '[]');
+    const habits = JSON.parse(localStorage.getItem('diary_habits') || '[]');
+    const habitCompletions = JSON.parse(localStorage.getItem('diary_habit_completions') || '{}');
 
     // Create multiple sheets
     await this.createDiaryDashboard(dailyEntries, weeklyEntries, monthlyEntries, wellnessData, habits);

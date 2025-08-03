@@ -15,25 +15,29 @@ class NotificationService {
   async init() {
     // Initialize platform-specific features
     if (this.isCapacitor) {
-      try {
-        // Try to import Capacitor LocalNotifications for mobile if available
-        if (typeof window !== 'undefined') {
-          const { LocalNotifications } = await import('@capacitor/local-notifications');
-          this.LocalNotifications = LocalNotifications;
-        }
-        
-        // Request permissions for mobile
-        await this.requestPermission();
-      } catch (error) {
-        console.warn('LocalNotifications not available:', error);
-        // Fall back to browser notifications
-        this.checkBrowserSupport();
-        await this.requestPermission();
-      }
+      // For mobile platforms, try to load LocalNotifications at runtime
+      await this.loadMobileNotifications();
+      await this.requestPermission();
     } else {
       // Browser notifications
       this.checkBrowserSupport();
       await this.requestPermission();
+    }
+  }
+
+  async loadMobileNotifications() {
+    try {
+      // Only try to load on actual mobile runtime, not during build
+      if (typeof window !== 'undefined' && window.Capacitor) {
+        // Dynamic import that won't be processed during build
+        const importPath = '@capacitor/local-notifications';
+        const module = await import(/* @vite-ignore */ importPath);
+        this.LocalNotifications = module.LocalNotifications;
+        console.log('✅ Mobile notifications loaded successfully');
+      }
+    } catch (error) {
+      console.warn('Mobile notifications not available, falling back to browser notifications:', error);
+      this.checkBrowserSupport();
     }
   }
 
