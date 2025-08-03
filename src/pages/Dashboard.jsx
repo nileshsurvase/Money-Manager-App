@@ -670,39 +670,34 @@ const Dashboard = memo(() => {
       </div>
 
       {/* Floating Action Button */}
-      <motion.button
+      <button
         onClick={() => {
           console.log('Dashboard floating button clicked!');
           console.log('Current modal state:', isExpenseModalOpen);
           setIsExpenseModalOpen(true);
           console.log('Modal state after set:', true);
         }}
-        className="floating-action-button bg-gradient-to-r from-orange-500 to-red-500 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center perf-button perf-touch perf-60fps"
+        className="floating-action-button bg-gradient-to-r from-orange-500 to-red-500 text-white"
         style={{
-          willChange: 'transform, opacity',
-          backfaceVisibility: 'hidden',
-          WebkitBackfaceVisibility: 'hidden',
-          touchAction: 'manipulation',
-          WebkitTapHighlightColor: 'transparent'
-        }}
-        whileHover={{ 
-          scale: 1.1,
-          boxShadow: '0 8px 30px rgba(251, 146, 60, 0.4)',
-          transition: { type: "spring", stiffness: 400, damping: 25 }
-        }}
-        whileTap={{ 
-          scale: 0.95,
-          transition: { type: "spring", stiffness: 600, damping: 30 }
-        }}
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ 
-          scale: 1, 
-          opacity: 1,
-          transition: { delay: 0.5, type: "spring", stiffness: 400, damping: 25 }
+          position: 'fixed',
+          zIndex: 99999,
+          bottom: '20px',
+          right: '20px',
+          width: '56px',
+          height: '56px',
+          borderRadius: '50%',
+          border: 'none',
+          outline: 'none',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          transition: 'all 0.2s ease'
         }}
       >
-        <Plus className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-      </motion.button>
+        <Plus className="h-6 w-6 text-white" />
+      </button>
 
       {/* Test button for debugging */}
       <button
@@ -718,9 +713,13 @@ const Dashboard = memo(() => {
       {/* Expense Modal */}
       <ExpenseModal
         isOpen={isExpenseModalOpen}
-        onClose={() => setIsExpenseModalOpen(false)}
+        onClose={() => {
+          console.log('Modal closing');
+          setIsExpenseModalOpen(false);
+        }}
         onSuccess={loadData}
       />
+      {isExpenseModalOpen && console.log('Modal is open!')}
     </div>
   );
 });

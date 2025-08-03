@@ -103,7 +103,7 @@ const Modal = ({
           />
           
           {/* Modal container */}
-          <div className="flex min-h-full items-center justify-center p-4">
+          <div className="flex min-h-screen items-center justify-center p-4">
             <motion.div
               variants={modalVariants}
               initial="hidden"

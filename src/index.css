@@ -693,30 +693,38 @@
 /* Floating Action Button */
 .floating-action-button {
   position: fixed !important;
-  z-index: 9999 !important;
-  bottom: 1rem !important;
-  right: 1rem !important;
-  width: 3rem !important;
-  height: 3rem !important;
-  will-change: transform, opacity !important;
-  -webkit-backface-visibility: hidden !important;
-  backface-visibility: hidden !important;
-  touch-action: manipulation !important;
-  -webkit-tap-highlight-color: transparent !important;
-  pointer-events: auto !important;
+  z-index: 99999 !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 50% !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+  will-change: transform, opacity !important;
+  -webkit-backface-visibility: hidden !important;
+  backface-visibility: hidden !important;
+  transition: all 0.2s ease !important;
+}
+
+.floating-action-button:hover {
+  transform: scale(1.1) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25) !important;
+}
+
+.floating-action-button:active {
+  transform: scale(0.95) !important;
 }
 
 /* Ensure FAB is always visible above other content */
 .floating-action-button:hover {
-  z-index: 10000 !important;
-}
-
-/* Ensure FAB is always visible above other content */
-.floating-action-button:hover {
-  z-index: 101 !important;
+  z-index: 100000 !important;
 }
 
 /* Mobile performance optimizations */
@@ -741,9 +749,9 @@
   
   /* Floating action button mobile optimization */
   .floating-action-button {
-    bottom: 1rem !important;
-    right: 1rem !important;
-    width: 3rem !important;
-    height: 3rem !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    width: 56px !important;
+    height: 56px !important;
   }
 }
