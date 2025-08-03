@@ -23,11 +23,9 @@ export const performanceMonitor = {
 
 // Hardware acceleration CSS properties
 export const hardwareAcceleration = {
-  transform: 'translateZ(0)',
   willChange: 'transform, opacity',
   backfaceVisibility: 'hidden',
   perspective: '1000px',
-  WebkitTransform: 'translateZ(0)',
   WebkitBackfaceVisibility: 'hidden',
   WebkitPerspective: '1000px'
 };

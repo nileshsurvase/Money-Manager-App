@@ -451,16 +451,13 @@ const Expenses = () => {
           setIsExpenseModalOpen(true);
           console.log('Modal state after set:', true);
         }}
-        className="floating-action-button w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r from-orange-500 to-red-500 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center perf-button perf-touch perf-60fps"
+        className="floating-action-button bg-gradient-to-r from-orange-500 to-red-500 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center perf-button perf-touch perf-60fps"
         style={{
-          transform: 'translateZ(0)',
           willChange: 'transform, opacity',
           backfaceVisibility: 'hidden',
           WebkitBackfaceVisibility: 'hidden',
           touchAction: 'manipulation',
-          WebkitTapHighlightColor: 'transparent',
-          position: 'fixed',
-          zIndex: 9999
+          WebkitTapHighlightColor: 'transparent'
         }}
         whileHover={{ 
           scale: 1.1,

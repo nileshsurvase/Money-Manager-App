@@ -694,16 +694,19 @@
 .floating-action-button {
   position: fixed !important;
   z-index: 9999 !important;
-  transform: translateZ(0) !important;
-  -webkit-transform: translateZ(0) !important;
+  bottom: 1rem !important;
+  right: 1rem !important;
+  width: 3rem !important;
+  height: 3rem !important;
   will-change: transform, opacity !important;
   -webkit-backface-visibility: hidden !important;
   backface-visibility: hidden !important;
   touch-action: manipulation !important;
   -webkit-tap-highlight-color: transparent !important;
   pointer-events: auto !important;
-  bottom: 1rem !important;
-  right: 1rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 /* Ensure FAB is always visible above other content */
