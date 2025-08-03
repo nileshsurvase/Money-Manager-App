@@ -50,6 +50,7 @@ import {
   exportWellbeingToCSV,
   generateSampleDiaryFile
 } from '../../utils/diaryStorage';
+import { createMyDiaryExcelReport } from '../../utils/enhancedExcelExport';
 import Input from '../../components/Input';
 import { useTheme } from '../../context/ThemeContext';
 import notificationService from '../../utils/notificationService';
@@ -194,6 +195,22 @@ const DiarySettings = memo(() => {
       setTimeout(() => window.location.reload(), 1000);
     } catch (error) {
       console.error('Delete error:', error);
+    }
+  }, []);
+
+  const exportComprehensiveDiaryReport = useCallback(async () => {
+    try {
+      const toast = { 
+        success: (msg) => console.log(msg),
+        error: (msg) => console.error(msg)
+      };
+      toast.success?.('🚀 Generating comprehensive diary report with wellness analytics...');
+      await createMyDiaryExcelReport();
+      toast.success?.('📊 Beautiful Excel report with mood patterns and habit analytics downloaded successfully!');
+    } catch (error) {
+      console.error('Enhanced diary export error:', error);
+      const toast = { error: (msg) => console.error(msg) };
+      toast.error?.('Failed to generate comprehensive diary report');
     }
   }, []);
 
@@ -717,6 +734,53 @@ const DiarySettings = memo(() => {
                     </div>
                   </button>
                 </div>
+              </div>
+
+              {/* Comprehensive Excel Report - NEW! */}
+              <div className="space-y-4 pt-6 border-t border-gray-200/50 dark:border-gray-700/50">
+                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  🚀 Interactive Excel Reports with Wellness Analytics
+                </h4>
+                
+                <button
+                  onClick={exportComprehensiveDiaryReport}
+                  className="w-full glass-panel p-6 rounded-xl hover:bg-gradient-to-r hover:from-emerald-50/50 hover:to-green-50/50 dark:hover:from-emerald-900/20 dark:hover:to-green-900/20 transition-all duration-300 group border-2 border-emerald-200/50 dark:border-emerald-800/50"
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                      <motion.div
+                        animate={{ rotate: [0, 360] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                      >
+                        <Heart className="h-6 w-6 text-white" />
+                      </motion.div>
+                    </div>
+                    <div className="text-left flex-1">
+                      <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
+                        📊 Download All Combined Diary Data
+                      </h4>
+                      <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium mb-2">
+                        Interactive Excel with Wellness Charts & Mood Analytics
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="text-xs px-2 py-1 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 rounded-full">
+                          📈 Mood Patterns
+                        </span>
+                        <span className="text-xs px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 rounded-full">
+                          🏃 Habit Analytics
+                        </span>
+                        <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-full">
+                          🧘 Wellness Trends
+                        </span>
+                        <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 rounded-full">
+                          📝 Journal Insights
+                        </span>
+                      </div>
+                    </div>
+                    <ArrowUpRight className="h-6 w-6 text-gray-400 group-hover:text-emerald-500 transition-colors duration-300" />
+                  </div>
+                </button>
               </div>
 
               {/* Import & Other Actions */}

@@ -1,4 +1,5 @@
 import { format, startOfDay, endOfDay, isToday, isThisWeek, isThisMonth, startOfWeek, endOfWeek, startOfMonth, endOfMonth, differenceInDays, subDays, eachDayOfInterval } from 'date-fns';
+import { downloadCSV, downloadJSON, generateFilename } from './downloadHelper';
 
 // Storage keys for diary data
 export const DIARY_STORAGE_KEYS = {
@@ -1265,29 +1266,34 @@ export const exportDailyJournalToCSV = () => {
   try {
     const dailyEntries = getFromStorage(DIARY_STORAGE_KEYS.DAILY_ENTRIES, []);
     
+    let csvContent;
     if (dailyEntries.length === 0) {
-      return 'Date,Day,Emotion,Grateful For,Proud Of,Favorite Moment,Mistake & Learning,More Of,Less Of,Affirmation,Additional Thoughts,Created At\nNo daily journal entries found';
+      csvContent = 'Date,Day,Emotion,Grateful For,Proud Of,Favorite Moment,Mistake & Learning,More Of,Less Of,Affirmation,Additional Thoughts,Created At\nNo daily journal entries found';
+    } else {
+      const rows = dailyEntries.map(entry => ({
+        'Date': format(new Date(entry.date), 'dd/MM/yyyy'),
+        'Day': format(new Date(entry.date), 'EEEE'),
+        'Emotion': entry.emotion || '',
+        'Grateful For': entry.grateful || '',
+        'Proud Of': entry.proud || '',
+        'Favorite Moment': entry.favoritemoment || '',
+        'Mistake & Learning': `${entry.mistake || ''} → ${entry.improvement || ''}`,
+        'More Of': entry.moreOf || '',
+        'Less Of': entry.lessOf || '',
+        'Affirmation': entry.affirmation || '',
+        'Additional Thoughts': entry.additionalThoughts || '',
+        'Created At': format(new Date(entry.createdAt), 'dd/MM/yyyy HH:mm')
+      }));
+      
+      csvContent = convertToCSV(rows);
     }
     
-    const rows = dailyEntries.map(entry => ({
-      'Date': format(new Date(entry.date), 'dd/MM/yyyy'),
-      'Day': format(new Date(entry.date), 'EEEE'),
-      'Emotion': entry.emotion || '',
-      'Grateful For': entry.grateful || '',
-      'Proud Of': entry.proud || '',
-      'Favorite Moment': entry.favoritemoment || '',
-      'Mistake & Learning': `${entry.mistake || ''} → ${entry.improvement || ''}`,
-      'More Of': entry.moreOf || '',
-      'Less Of': entry.lessOf || '',
-      'Affirmation': entry.affirmation || '',
-      'Additional Thoughts': entry.additionalThoughts || '',
-      'Created At': format(new Date(entry.createdAt), 'dd/MM/yyyy HH:mm')
-    }));
-    
-    return convertToCSV(rows);
+    // Download the CSV file
+    const filename = generateFilename('ClarityOS-MyDiary', 'Daily-Journal');
+    return downloadCSV(csvContent, filename);
   } catch (error) {
     console.error('Error creating Daily Journal CSV:', error);
-    return 'Error,Message\nExport Failed,Unable to export daily journal data';
+    throw new Error('Failed to export daily journal data');
   }
 };
 
@@ -1296,34 +1302,39 @@ export const exportWeeklyJournalToCSV = () => {
   try {
     const weeklyEntries = getFromStorage(DIARY_STORAGE_KEYS.WEEKLY_ENTRIES, []);
     
+    let csvContent;
     if (weeklyEntries.length === 0) {
-      return 'Week Start,Week End,Biggest Win,Biggest Challenge,Personal Growth,Behavior Patterns,Relationships,Goals Progress,Next Week Differently,Looking Forward,Additional Reflections,Created At\nNo weekly journal entries found';
+      csvContent = 'Week Start,Week End,Biggest Win,Biggest Challenge,Personal Growth,Behavior Patterns,Relationships,Goals Progress,Next Week Differently,Looking Forward,Additional Reflections,Created At\nNo weekly journal entries found';
+    } else {
+      const rows = weeklyEntries.map(entry => {
+        const weekStart = startOfWeek(new Date(entry.date));
+        const weekEnd = endOfWeek(new Date(entry.date));
+        
+        return {
+          'Week Start': format(weekStart, 'dd/MM/yyyy'),
+          'Week End': format(weekEnd, 'dd/MM/yyyy'),
+          'Biggest Win': entry.biggestWin || '',
+          'Biggest Challenge': entry.biggestChallenge || '',
+          'Personal Growth': entry.personalGrowth || '',
+          'Behavior Patterns': entry.behaviorPatterns || '',
+          'Relationships': entry.relationships || '',
+          'Goals Progress': entry.goalsProgress || '',
+          'Next Week Differently': entry.nextWeekDifferently || '',
+          'Looking Forward': entry.lookingForward || '',
+          'Additional Reflections': entry.additionalReflections || '',
+          'Created At': format(new Date(entry.createdAt), 'dd/MM/yyyy HH:mm')
+        };
+      });
+      
+      csvContent = convertToCSV(rows);
     }
     
-    const rows = weeklyEntries.map(entry => {
-      const weekStart = startOfWeek(new Date(entry.date));
-      const weekEnd = endOfWeek(new Date(entry.date));
-      
-      return {
-        'Week Start': format(weekStart, 'dd/MM/yyyy'),
-        'Week End': format(weekEnd, 'dd/MM/yyyy'),
-        'Biggest Win': entry.biggestWin || '',
-        'Biggest Challenge': entry.biggestChallenge || '',
-        'Personal Growth': entry.personalGrowth || '',
-        'Behavior Patterns': entry.behaviorPatterns || '',
-        'Relationships': entry.relationships || '',
-        'Goals Progress': entry.goalsProgress || '',
-        'Next Week Differently': entry.nextWeekDifferently || '',
-        'Looking Forward': entry.lookingForward || '',
-        'Additional Reflections': entry.additionalReflections || '',
-        'Created At': format(new Date(entry.createdAt), 'dd/MM/yyyy HH:mm')
-      };
-    });
-    
-    return convertToCSV(rows);
+    // Download the CSV file
+    const filename = generateFilename('ClarityOS-MyDiary', 'Weekly-Journal');
+    return downloadCSV(csvContent, filename);
   } catch (error) {
     console.error('Error creating Weekly Journal CSV:', error);
-    return 'Error,Message\nExport Failed,Unable to export weekly journal data';
+    throw new Error('Failed to export weekly journal data');
   }
 };
 

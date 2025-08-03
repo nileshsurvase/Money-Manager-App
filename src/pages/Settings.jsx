@@ -51,6 +51,7 @@ import {
   exportBudgetsToCSV,
   generateSampleMoneyManagerFile
 } from '../utils/storage';
+import { createMoneyManagerExcelReport } from '../utils/enhancedExcelExport';
 
 const Settings = memo(() => {
   const { isDark, toggleTheme } = useTheme();
@@ -175,6 +176,17 @@ const Settings = memo(() => {
     } catch (error) {
       console.error('Sample data error:', error);
       toast.error?.('Failed to generate sample data');
+    }
+  }, [toast]);
+
+  const exportComprehensiveReport = useCallback(async () => {
+    try {
+      toast.success?.('🚀 Generating comprehensive Excel report with charts...');
+      await createMoneyManagerExcelReport();
+      toast.success?.('📊 Beautiful Excel report with interactive charts downloaded successfully!');
+    } catch (error) {
+      console.error('Enhanced export error:', error);
+      toast.error?.('Failed to generate comprehensive report');
     }
   }, [toast]);
 
@@ -423,6 +435,53 @@ const Settings = memo(() => {
                     </div>
                   </button>
                 </div>
+              </div>
+
+              {/* Comprehensive Excel Report - NEW! */}
+              <div className="space-y-4 pt-6 border-t border-gray-200/50 dark:border-gray-700/50">
+                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  🚀 Interactive Excel Reports with Charts
+                </h4>
+                
+                <button
+                  onClick={exportComprehensiveReport}
+                  className="w-full glass-panel p-6 rounded-xl hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-indigo-50/50 dark:hover:from-purple-900/20 dark:hover:to-indigo-900/20 transition-all duration-300 group border-2 border-purple-200/50 dark:border-purple-800/50"
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                      <motion.div
+                        animate={{ rotate: [0, 360] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                      >
+                        <Sparkles className="h-6 w-6 text-white" />
+                      </motion.div>
+                    </div>
+                    <div className="text-left flex-1">
+                      <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
+                        📊 Download All Combined Data
+                      </h4>
+                      <p className="text-sm text-purple-600 dark:text-purple-400 font-medium mb-2">
+                        Interactive Excel with Charts & Visual Analytics
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 rounded-full">
+                          📈 Budget Analysis
+                        </span>
+                        <span className="text-xs px-2 py-1 bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 rounded-full">
+                          📊 Category Trends
+                        </span>
+                        <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-full">
+                          🎯 Financial Health
+                        </span>
+                        <span className="text-xs px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 rounded-full">
+                          🔮 Predictive Analytics
+                        </span>
+                      </div>
+                    </div>
+                    <ArrowUpRight className="h-6 w-6 text-gray-400 group-hover:text-purple-500 transition-colors duration-300" />
+                  </div>
+                </button>
               </div>
 
               {/* Import & Other Actions */}

@@ -1,4 +1,5 @@
 // Storage utilities for the money manager application
+import { downloadCSV, downloadJSON, generateFilename } from './downloadHelper';
 
 // Default categories for expenses (Indian context)
 export const DEFAULT_CATEGORIES = [
@@ -250,29 +251,32 @@ export const exportMoneyManagerToCSV = () => {
     }));
     
     // Convert to CSV string
+    let csvContent;
     if (expenseRows.length === 0) {
-      return 'Date,Description,Category,Amount,Notes,Created At\nNo data available';
+      csvContent = 'Date,Description,Category,Amount,Notes,Created At\nNo data available';
+    } else {
+      const headers = Object.keys(expenseRows[0]);
+      csvContent = [
+        headers.join(','),
+        ...expenseRows.map(row => 
+          headers.map(header => {
+            const value = row[header];
+            // Escape commas and quotes in CSV
+            if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+              return `"${value.replace(/"/g, '""')}"`;
+            }
+            return value;
+          }).join(',')
+        )
+      ].join('\n');
     }
     
-    const headers = Object.keys(expenseRows[0]);
-    const csvContent = [
-      headers.join(','),
-      ...expenseRows.map(row => 
-        headers.map(header => {
-          const value = row[header];
-          // Escape commas and quotes in CSV
-          if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
-            return `"${value.replace(/"/g, '""')}"`;
-          }
-          return value;
-        }).join(',')
-      )
-    ].join('\n');
-    
-    return csvContent;
+    // Download the CSV file
+    const filename = generateFilename('ClarityOS-MoneyManager', 'Expenses');
+    return downloadCSV(csvContent, filename);
   } catch (error) {
     console.error('Error creating Money Manager CSV:', error);
-    return 'Error,Message\nExport Failed,Unable to export data';
+    throw new Error('Failed to export expenses data');
   }
 };
 
@@ -296,28 +300,31 @@ export const exportBudgetsToCSV = () => {
     }));
     
     // Convert to CSV string
+    let csvContent;
     if (budgetRows.length === 0) {
-      return 'Category,Budget Amount,Period,Created At\nNo budgets set';
+      csvContent = 'Category,Budget Amount,Period,Created At\nNo budgets set';
+    } else {
+      const headers = Object.keys(budgetRows[0]);
+      csvContent = [
+        headers.join(','),
+        ...budgetRows.map(row => 
+          headers.map(header => {
+            const value = row[header];
+            if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+              return `"${value.replace(/"/g, '""')}"`;
+            }
+            return value;
+          }).join(',')
+        )
+      ].join('\n');
     }
     
-    const headers = Object.keys(budgetRows[0]);
-    const csvContent = [
-      headers.join(','),
-      ...budgetRows.map(row => 
-        headers.map(header => {
-          const value = row[header];
-          if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
-            return `"${value.replace(/"/g, '""')}"`;
-          }
-          return value;
-        }).join(',')
-      )
-    ].join('\n');
-    
-    return csvContent;
+    // Download the CSV file
+    const filename = generateFilename('ClarityOS-MoneyManager', 'Budgets');
+    return downloadCSV(csvContent, filename);
   } catch (error) {
     console.error('Error creating Budgets CSV:', error);
-    return 'Error,Message\nExport Failed,Unable to export budget data';
+    throw new Error('Failed to export budget data');
   }
 };
 
