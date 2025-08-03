@@ -112,3 +112,4 @@ To update your app in the future:
 - **Your data** is automatically saved locally on the phone
 
 Your Money Manager Android app is ready! 🚀
+ 

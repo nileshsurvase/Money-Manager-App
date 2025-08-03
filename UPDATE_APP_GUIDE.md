@@ -224,3 +224,4 @@ Keep track of your updates:
 **Your update workflow is fully automated!** 🚀
 
 Every push to GitHub = New APK ready in 5-10 minutes!
+ 

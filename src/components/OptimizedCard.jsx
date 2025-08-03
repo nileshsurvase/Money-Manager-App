@@ -111,3 +111,4 @@ const OptimizedCard = memo(({
 OptimizedCard.displayName = 'OptimizedCard';
 
 export default OptimizedCard;
+export default OptimizedCard; 

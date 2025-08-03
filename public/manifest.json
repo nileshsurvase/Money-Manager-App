@@ -33,8 +33,8 @@
   ],
   "shortcuts": [
     {
-      "name": "Money Manager",
-      "short_name": "Money",
+      "name": "ClarityOS",
+      "short_name": "ClarityOS",
       "description": "Track expenses and manage budget",
       "url": "/?app=money-manager",
       "icons": [{ "src": "/icons/icon-192x192.svg", "sizes": "192x192" }]

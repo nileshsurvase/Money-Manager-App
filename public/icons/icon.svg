@@ -1,15 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <!-- Orange Background -->
+  <!-- Orange Background with rounded corners -->
   <rect width="512" height="512" rx="80" fill="#f97316"/>
   
-  <!-- Subtle gradient overlay -->
+  <!-- Subtle gradient overlay for depth -->
   <defs>
     <radialGradient id="bgGradient" cx="50%" cy="30%" r="70%">
       <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:0.3"/>
       <stop offset="100%" style="stop-color:#ea580c;stop-opacity:0.2"/>
     </radialGradient>
     <filter id="glow">
-      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
       <feMerge> 
         <feMergeNode in="coloredBlur"/>
         <feMergeNode in="SourceGraphic"/>
@@ -20,32 +20,16 @@
   <!-- Gradient overlay -->
   <rect width="512" height="512" rx="80" fill="url(#bgGradient)"/>
   
-  <!-- Main Lightning Bolt -->
-  <path d="M280 80 L200 240 L260 240 L240 430 L320 270 L260 270 L280 80 Z" 
+  <!-- Main Lightning Bolt - Clean and Bold -->
+  <path d="M310 80 L190 280 L270 280 L240 450 L360 250 L280 250 L310 80 Z" 
         fill="white" 
         filter="url(#glow)" 
-        opacity="0.95"/>
+        opacity="0.98"/>
   
-  <!-- Secondary smaller lightning accents -->
-  <path d="M150 180 L120 220 L140 220 L130 260 L160 220 L140 220 L150 180 Z" 
-        fill="white" 
-        opacity="0.4"/>
-  
-  <path d="M380 180 L350 220 L370 220 L360 260 L390 220 L370 220 L380 180 Z" 
-        fill="white" 
-        opacity="0.4"/>
-  
-  <!-- Energy particles/dots -->
-  <circle cx="180" cy="150" r="4" fill="white" opacity="0.6"/>
-  <circle cx="200" cy="130" r="3" fill="white" opacity="0.5"/>
-  <circle cx="340" cy="140" r="4" fill="white" opacity="0.6"/>
-  <circle cx="360" cy="160" r="3" fill="white" opacity="0.5"/>
-  
-  <circle cx="120" cy="320" r="3" fill="white" opacity="0.4"/>
-  <circle cx="140" cy="340" r="2" fill="white" opacity="0.5"/>
-  <circle cx="380" cy="310" r="3" fill="white" opacity="0.4"/>
-  <circle cx="400" cy="330" r="2" fill="white" opacity="0.5"/>
-  
-  <!-- CoreOS Text -->
-  <text x="256" y="480" text-anchor="middle" fill="white" font-size="36" font-weight="bold" opacity="0.95" filter="url(#glow)">CoreOS</text>
-</svg>
+  <!-- Lightning glow effect -->
+  <path d="M310 80 L190 280 L270 280 L240 450 L360 250 L280 250 L310 80 Z" 
+        fill="none" 
+        stroke="white" 
+        stroke-width="2" 
+        opacity="0.6"/>
+</svg> 
