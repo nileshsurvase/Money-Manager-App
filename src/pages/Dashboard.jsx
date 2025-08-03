@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line } from 'recharts';
 import Card from '../components/Card';
+import OptimizedCard from '../components/OptimizedCard';
 import Button from '../components/Button';
 import ExpenseModal from '../components/ExpenseModal';
 import { 
@@ -39,9 +40,19 @@ import {
   formatNumber,
   formatCurrencyNumber
 } from '../utils/dateHelpers';
-import { cardAnimation, staggerContainer, hoverAnimation } from '../utils/performance';
+import { 
+  cardAnimation, 
+  staggerContainer, 
+  hoverAnimation,
+  useMemoizedCalculations,
+  usePerformanceMonitor,
+  useBatchState
+} from '../utils/performance';
 
 const Dashboard = memo(() => {
+  // Performance monitoring
+  usePerformanceMonitor('Dashboard');
+  
   let formatCurrency, formatAbbreviatedAmount;
   
   try {
@@ -53,17 +64,35 @@ const Dashboard = memo(() => {
     formatCurrency = (amount) => `₹${amount}`;
     formatAbbreviatedAmount = (amount) => `₹${amount}`;
   }
-  const [expenses, setExpenses] = useState([]);
-  const [budgets, setBudgets] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
-  const [timeFilter, setTimeFilter] = useState('month'); // 'lastMonth', 'month'
-  const [currentMonthOffset, setCurrentMonthOffset] = useState(0); // 0 = current month, -1 = previous month, etc.
-  const [loading, setLoading] = useState(true);
-  const [showAllExpenses, setShowAllExpenses] = useState(false);
+
+  // Batch state updates for better performance
+  const [state, batchUpdate] = useBatchState({
+    expenses: [],
+    budgets: [],
+    categories: [],
+    isExpenseModalOpen: false,
+    timeFilter: 'month',
+    currentMonthOffset: 0,
+    loading: true,
+    showAllExpenses: false
+  });
+
+  const { 
+    expenses, 
+    budgets, 
+    categories, 
+    isExpenseModalOpen, 
+    timeFilter, 
+    currentMonthOffset, 
+    loading, 
+    showAllExpenses 
+  } = state;
 
   const loadData = useCallback(async () => {
-    setLoading(true);
+    batchUpdate([
+      { loading: true }
+    ]);
+    
     try {
       const [expensesData, budgetsData, categoriesData] = await Promise.all([
         getExpenses(),
@@ -71,15 +100,17 @@ const Dashboard = memo(() => {
         getCategories()
       ]);
       
-      setExpenses(expensesData);
-      setBudgets(budgetsData);
-      setCategories(categoriesData);
+      batchUpdate([
+        { expenses: expensesData },
+        { budgets: budgetsData },
+        { categories: categoriesData },
+        { loading: false }
+      ]);
     } catch (error) {
       console.error('Error loading data:', error);
-    } finally {
-      setLoading(false);
+      batchUpdate([{ loading: false }]);
     }
-  }, []);
+  }, [batchUpdate]);
 
   useEffect(() => {
     loadData();
@@ -99,628 +130,266 @@ const Dashboard = memo(() => {
     return getMonthName(targetDate);
   }, [currentMonthOffset]);
 
-  // Navigate to previous month
-  const goToPreviousMonth = useCallback(() => {
-    setCurrentMonthOffset(prev => prev - 1);
-  }, []);
+  // Memoized calculations for better performance
+  const calculations = useMemoizedCalculations(expenses, budgets);
 
-  // Navigate to next month
-  const goToNextMonth = useCallback(() => {
-    setCurrentMonthOffset(prev => prev + 1);
-  }, []);
-
-  // Handle time filter change and reset month navigation
-  const handleTimeFilterChange = useCallback((filter) => {
-    setTimeFilter(filter);
-    setCurrentMonthOffset(0); // Reset to current month when switching filters
-  }, []);
-
+  // Get filtered expenses based on time filter
   const filteredExpenses = useMemo(() => {
-    // If we're navigating to a different month (not current month), use custom month navigation
-    if (currentMonthOffset !== 0) {
-      const { start, end } = currentSelectedMonthRange;
-      return filterExpensesByDateRange(expenses, start, end);
-    }
-    
-    // Otherwise, use the selected time filter for current month
-    if (timeFilter === 'lastMonth') {
-      // Show previous month expenses
-      const { start, end } = getPreviousMonthRange();
-      return filterExpensesByDateRange(expenses, start, end);
-    } else {
-      // Show current month expenses (timeFilter === 'month')
+    if (timeFilter === 'month') {
       return getCurrentMonthExpenses(expenses);
+    } else if (timeFilter === 'week') {
+      return getCurrentWeekExpenses(expenses);
+    } else if (timeFilter === 'lastMonth') {
+      return filterExpensesByDateRange(expenses, ...getPreviousMonthRange());
     }
-  }, [expenses, timeFilter, currentMonthOffset, currentSelectedMonthRange]);
+    return expenses;
+  }, [expenses, timeFilter]);
 
-  const previousMonthExpenses = useMemo(() => {
-    const { start, end } = getPreviousMonthRange();
-    return expenses.filter(expense => {
-      const expenseDate = new Date(expense.date);
-      return expenseDate >= start && expenseDate <= end;
-    });
-  }, [expenses]);
+  // Get expenses for the selected month
+  const selectedMonthExpenses = useMemo(() => {
+    return filterExpensesByDateRange(expenses, ...currentSelectedMonthRange);
+  }, [expenses, currentSelectedMonthRange]);
 
-  const totalCurrentPeriod = calculateTotal(filteredExpenses);
-  const totalPreviousMonth = calculateTotal(previousMonthExpenses);
-  const percentageChange = totalPreviousMonth > 0 
-    ? ((totalCurrentPeriod - totalPreviousMonth) / totalPreviousMonth) * 100 
-    : 0;
+  // Calculate totals
+  const totals = useMemo(() => {
+    const totalExpenses = calculateTotal(filteredExpenses);
+    const totalBudget = budgets.reduce((sum, budget) => sum + Number(budget.amount), 0);
+    const remaining = totalBudget - totalExpenses;
+    
+    return {
+      totalExpenses,
+      totalBudget,
+      remaining,
+      percentage: totalBudget > 0 ? (totalExpenses / totalBudget) * 100 : 0
+    };
+  }, [filteredExpenses, budgets]);
 
-  const categoryExpenses = useMemo(() => {
-    const grouped = groupExpensesByCategory(filteredExpenses);
-    return categories.map(category => {
-      const categoryTotal = calculateTotal(grouped[category.id] || []);
-      const budget = budgets.find(b => b.categoryId === category.id);
+  // Chart data
+  const chartData = useMemo(() => {
+    const categoryData = groupExpensesByCategory(filteredExpenses, categories);
+    return Object.entries(categoryData).map(([categoryId, amount]) => {
+      const category = categories.find(cat => cat.id === categoryId);
       return {
-        ...category,
-        spent: categoryTotal,
-        budget: budget?.amount || 0,
-        percentage: budget?.amount ? (categoryTotal / budget.amount) * 100 : 0,
+        name: category?.name || 'Unknown',
+        value: amount,
+        color: category?.color || '#64748b'
       };
-    }).filter(cat => cat.spent > 0 || cat.budget > 0);
-  }, [filteredExpenses, categories, budgets]);
+    });
+  }, [filteredExpenses, categories]);
 
-  const chartData = categoryExpenses.map(cat => ({
-    name: cat.name,
-    value: cat.spent,
-    color: cat.color,
-  }));
-
-  const monthlyTrends = useMemo(() => {
-    const grouped = groupExpensesByMonth(expenses);
-    return Object.keys(grouped)
-      .sort()
-      .slice(-6)
-      .map(monthKey => ({
-        month: new Date(monthKey + '-01').toLocaleDateString('en-US', { month: 'short' }),
-        amount: calculateTotal(grouped[monthKey]),
-      }));
+  // Monthly trend data
+  const monthlyTrendData = useMemo(() => {
+    const monthlyData = groupExpensesByMonth(expenses);
+    return Object.entries(monthlyData).map(([month, amount]) => ({
+      month: getMonthName(new Date(month)),
+      amount
+    }));
   }, [expenses]);
 
-  // Get recent expenses (limit to 5 by default)
-  const recentExpenses = useMemo(() => {
-    const displayLimit = showAllExpenses ? filteredExpenses.length : 5;
-    return filteredExpenses
-      .sort((a, b) => new Date(b.date) - new Date(a.date))
-      .slice(0, displayLimit);
-  }, [filteredExpenses, showAllExpenses]);
+  // Event handlers with useCallback
+  const handleAddExpense = useCallback(() => {
+    batchUpdate([{ isExpenseModalOpen: true }]);
+  }, [batchUpdate]);
 
-  const totalBudget = budgets.reduce((sum, budget) => sum + budget.amount, 0);
-  const budgetUtilization = totalBudget > 0 ? (totalCurrentPeriod / totalBudget) * 100 : 0;
+  const handleExpenseModalClose = useCallback(() => {
+    batchUpdate([{ isExpenseModalOpen: false }]);
+  }, [batchUpdate]);
 
+  const handleExpenseSuccess = useCallback(() => {
+    loadData();
+    handleExpenseModalClose();
+  }, [loadData, handleExpenseModalClose]);
+
+  const goToPreviousMonth = useCallback(() => {
+    batchUpdate([{ currentMonthOffset: currentMonthOffset - 1 }]);
+  }, [currentMonthOffset, batchUpdate]);
+
+  const goToNextMonth = useCallback(() => {
+    batchUpdate([{ currentMonthOffset: currentMonthOffset + 1 }]);
+  }, [currentMonthOffset, batchUpdate]);
+
+  const handleTimeFilterChange = useCallback((filter) => {
+    batchUpdate([{ timeFilter: filter }]);
+  }, [batchUpdate]);
+
+  const toggleShowAllExpenses = useCallback(() => {
+    batchUpdate([{ showAllExpenses: !showAllExpenses }]);
+  }, [showAllExpenses, batchUpdate]);
+
+  // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center padding-responsive">
-        <div className="text-center spacing-md">
-          <div className="spinner-large mx-auto" />
-          <h2 className="font-semibold text-gray-900 dark:text-gray-100">Loading Dashboard</h2>
-          <p className="text-gray-600 dark:text-gray-400">Getting your financial overview ready...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="spinner-large"></div>
       </div>
     );
   }
 
   return (
-    <div className="spacing-lg">
-      {/* Mobile-First Header */}
-      <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-red-500/5 rounded-2xl sm:rounded-3xl blur-xl"></div>
-        <Card variant="glass" className="relative">
-          <div className="flex flex-col space-y-4 sm:space-y-6">
-            <div className="space-y-2">
-              <h1 className="text-gradient flex items-center gap-2 sm:gap-3">
-                <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 text-orange-500 animate-pulse" />
-                Financial Dashboard
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base lg:text-lg">
-                Your comprehensive financial overview
+    <motion.div
+      variants={staggerContainer}
+      initial="initial"
+      animate="animate"
+      className="space-y-6 p-4 sm:p-6"
+    >
+      {/* Header Section */}
+      <motion.div variants={cardAnimation} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+            Money Manager
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
+            Track your expenses and stay on budget
+          </p>
+        </div>
+        <Button
+          onClick={handleAddExpense}
+          className="flex items-center gap-2"
+          variants={hoverAnimation}
+        >
+          <Plus className="w-4 h-4" />
+          Add Expense
+        </Button>
+      </motion.div>
+
+      {/* Main Stats Cards */}
+      <motion.div variants={cardAnimation} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <OptimizedCard variant="stat" className="bg-gradient-to-br from-orange-500 to-red-500 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-orange-100 text-sm font-medium">Total Expenses</p>
+              <p className="text-2xl font-bold">
+                {formatCurrencyNumber(totals.totalExpenses)}
               </p>
             </div>
-            
-            <div className="flex flex-col gap-4">
-              {/* Time Filter Options */}
-              <div className="flex rounded-xl border border-gray-200/50 dark:border-gray-700/50 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md p-1">
-                <button
-                  onClick={() => handleTimeFilterChange('lastMonth')}
-                  className={`flex-1 px-3 py-2 text-sm font-semibold rounded-lg transition-all duration-300 touch-target ${
-                    timeFilter === 'lastMonth'
-                      ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-700/50'
-                  }`}
-                >
-                  Last Month
-                </button>
-                <button
-                  onClick={() => handleTimeFilterChange('month')}
-                  className={`flex-1 px-3 py-2 text-sm font-semibold rounded-lg transition-all duration-300 touch-target ${
-                    timeFilter === 'month'
-                      ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-700/50'
-                  }`}
-                >
-                  This Month
-                </button>
-              </div>
-            </div>
+            <DollarSign className="w-8 h-8 text-orange-200" />
           </div>
-        </Card>
-      </div>
+        </OptimizedCard>
 
-      {/* Mobile-Optimized Stats Cards - 2x2 Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <Card variant="stat">
-            <div className="flex items-center justify-between">
-              <button
-                onClick={goToPreviousMonth}
-                className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 touch-target"
+        <OptimizedCard variant="stat" className="bg-gradient-to-br from-green-500 to-emerald-500 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-green-100 text-sm font-medium">Total Budget</p>
+              <p className="text-2xl font-bold">
+                {formatCurrencyNumber(totals.totalBudget)}
+              </p>
+            </div>
+            <Target className="w-8 h-8 text-green-200" />
+          </div>
+        </OptimizedCard>
+
+        <OptimizedCard variant="stat" className="bg-gradient-to-br from-blue-500 to-indigo-500 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-blue-100 text-sm font-medium">Remaining</p>
+              <p className="text-2xl font-bold">
+                {formatCurrencyNumber(totals.remaining)}
+              </p>
+            </div>
+            <TrendingUp className="w-8 h-8 text-blue-200" />
+          </div>
+        </OptimizedCard>
+
+        <OptimizedCard variant="stat" className="bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-purple-100 text-sm font-medium">Usage</p>
+              <p className="text-2xl font-bold">
+                {totals.percentage.toFixed(1)}%
+              </p>
+            </div>
+            <BarChart3 className="w-8 h-8 text-purple-200" />
+          </div>
+        </OptimizedCard>
+      </motion.div>
+
+      {/* Charts Section */}
+      <motion.div variants={cardAnimation} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <OptimizedCard>
+          <h3 className="text-lg font-semibold mb-4">Expense by Category</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={chartData}
+                cx="50%"
+                cy="50%"
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
               >
-                <ChevronLeft className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-              </button>
-              <div className="space-y-1 sm:space-y-2 flex-1 text-center px-2">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">
-                  {currentSelectedMonthName}
-                </p>
-                <p className="currency-large font-bold text-lg sm:text-xl">
-                  {formatCurrencyNumber(totalCurrentPeriod, formatCurrency(0).charAt(0))}
-                </p>
-                {totalCurrentPeriod >= 1000 && (
-                  <p className="text-xs text-gray-500 dark:text-gray-500">
-                    {formatCurrency(totalCurrentPeriod)}
-                  </p>
-                )}
-              </div>
-              <button
-                onClick={goToNextMonth}
-                className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 touch-target"
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip formatter={(value) => formatCurrencyNumber(value)} />
+            </PieChart>
+          </ResponsiveContainer>
+        </OptimizedCard>
+
+        <OptimizedCard>
+          <h3 className="text-lg font-semibold mb-4">Monthly Trend</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={monthlyTrendData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip formatter={(value) => formatCurrencyNumber(value)} />
+              <Bar dataKey="amount" fill="#f97316" />
+            </BarChart>
+          </ResponsiveContainer>
+        </OptimizedCard>
+      </motion.div>
+
+      {/* Recent Expenses */}
+      <motion.div variants={cardAnimation}>
+        <OptimizedCard>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">Recent Expenses</h3>
+            <Button
+              variant="ghost"
+              onClick={toggleShowAllExpenses}
+              className="flex items-center gap-2"
+            >
+              {showAllExpenses ? <Eye className="w-4 h-4" /> : <Filter className="w-4 h-4" />}
+              {showAllExpenses ? 'Show Less' : 'Show All'}
+            </Button>
+          </div>
+          
+          <div className="space-y-3">
+            {(showAllExpenses ? filteredExpenses : filteredExpenses.slice(0, 5)).map((expense) => (
+              <motion.div
+                key={expense.id}
+                variants={hoverAnimation}
+                className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
               >
-                <ChevronRight className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-              </button>
-            </div>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Card variant="stat">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1 sm:space-y-2 min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">
-                  vs Last Month
-                </p>
-                <p className={`text-xl sm:text-2xl lg:text-3xl font-bold truncate ${
-                  percentageChange >= 0 ? 'text-red-500' : 'text-green-500'
-                }`}>
-                  {percentageChange >= 0 ? '+' : ''}{percentageChange.toFixed(1)}%
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-500 truncate break-all">
-                  {formatCurrencyNumber(Math.abs(totalCurrentPeriod - totalPreviousMonth), formatCurrency(0).charAt(0))}
-                </p>
-              </div>
-              <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg ${
-                percentageChange >= 0 
-                  ? 'bg-gradient-to-br from-red-400 to-red-600' 
-                  : 'bg-gradient-to-br from-green-400 to-green-600'
-              }`}>
-                {percentageChange >= 0 ? (
-                  <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
-                ) : (
-                  <TrendingDown className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
-                )}
-              </div>
-            </div>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <Card variant="stat">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1 sm:space-y-2 min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">
-                  Avg Daily Spend
-                </p>
-                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 truncate break-all">
-                  {formatCurrencyNumber(filteredExpenses.length > 0 ? totalCurrentPeriod / filteredExpenses.length : 0, formatCurrency(0).charAt(0))}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-500 truncate">
-                  {filteredExpenses.length} Transactions
-                </p>
-              </div>
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg">
-                <Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
-              </div>
-            </div>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <Card variant="stat">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1 sm:space-y-2 min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">
-                  Budget Used
-                </p>
-                <p className={`text-xl sm:text-2xl lg:text-3xl font-bold truncate ${
-                  budgetUtilization > 100 ? 'text-red-500' : 
-                  budgetUtilization > 80 ? 'text-yellow-500' : 'text-green-500'
-                }`}>
-                  {budgetUtilization.toFixed(1)}%
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-500 truncate break-all">
-                  of {formatCurrencyNumber(totalBudget, formatCurrency(0).charAt(0))}
-                </p>
-              </div>
-              <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg ${
-                budgetUtilization > 100 ? 'bg-gradient-to-br from-red-400 to-red-600' :
-                budgetUtilization > 80 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600' :
-                'bg-gradient-to-br from-green-400 to-green-600'
-              }`}>
-                <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white/20 flex items-center justify-center">
-                  <span className="text-white text-xs sm:text-sm font-bold">%</span>
-                </div>
-              </div>
-            </div>
-          </Card>
-        </motion.div>
-      </div>
-
-      {/* Mobile-Responsive Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-        {/* Category Chart */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <Card variant="default" className="chart-container">
-            <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 mb-4 sm:mb-6 flex items-center gap-2">
-              <div className="w-1 sm:w-2 h-4 sm:h-6 bg-gradient-to-b from-orange-500 to-red-500 rounded-full"></div>
-              Expenses by Category
-            </h3>
-            {chartData.length > 0 ? (
-              <div className="h-64 sm:h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={chartData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={100}
-                      paddingAngle={3}
-                      dataKey="value"
-                    >
-                      {chartData.map((entry, index) => (
-                        <Cell 
-                          key={`cell-${index}`} 
-                          fill={entry.color}
-                          stroke="rgba(255,255,255,0.2)"
-                          strokeWidth={2}
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      formatter={(value) => [formatCurrency(value), 'Amount']}
-                      contentStyle={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        border: 'none',
-                        borderRadius: '12px',
-                        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
-                        fontSize: '14px',
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            ) : (
-              <div className="h-64 sm:h-80 flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 spacing-sm">
-                <div className="text-4xl sm:text-6xl mb-2 sm:mb-4">📊</div>
-                <p className="font-medium text-center">No expenses to display</p>
-                <p className="text-sm text-center">Add some expenses to see the breakdown</p>
-              </div>
-            )}
-          </Card>
-        </motion.div>
-
-        {/* Monthly Trends */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.6 }}
-        >
-          <Card variant="default" className="chart-container">
-            <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 mb-4 sm:mb-6 flex items-center gap-2">
-              <div className="w-1 sm:w-2 h-4 sm:h-6 bg-gradient-to-b from-green-500 to-orange-500 rounded-full"></div>
-              Monthly Trends
-            </h3>
-            {monthlyTrends.length > 0 ? (
-              <div className="h-64 sm:h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={monthlyTrends}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(156, 163, 175, 0.2)" />
-                    <XAxis 
-                      dataKey="month" 
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fill: '#6b7280', fontSize: 12 }}
-                    />
-                    <YAxis 
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fill: '#6b7280', fontSize: 12 }}
-                      tickFormatter={(value) => formatAbbreviatedAmount(value)}
-                    />
-                    <Tooltip 
-                      formatter={(value) => [formatCurrency(value), 'Amount']}
-                      contentStyle={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        border: 'none',
-                        borderRadius: '12px',
-                        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
-                        fontSize: '14px',
-                      }}
-                      cursor={{ fill: 'rgba(0, 0, 0, 0.1)' }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="amount" 
-                      stroke="url(#colorGradient)"
-                      strokeWidth={3}
-                      dot={{ fill: '#f97316', strokeWidth: 2, r: 4 }}
-                      activeDot={{ r: 6, stroke: '#f97316', strokeWidth: 2, fill: '#fff' }}
-                    />
-                    <defs>
-                      <linearGradient id="colorGradient" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="#f97316" />
-                        <stop offset="100%" stopColor="#22c55e" />
-                      </linearGradient>
-                    </defs>
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            ) : (
-              <div className="h-64 sm:h-80 flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 spacing-sm">
-                <div className="text-4xl sm:text-6xl mb-2 sm:mb-4">📈</div>
-                <p className="font-medium text-center">No data available</p>
-                <p className="text-sm text-center">Start adding expenses to see trends</p>
-              </div>
-            )}
-          </Card>
-        </motion.div>
-      </div>
-
-      {/* Bottom Section: Budget Progress and Recent Expenses */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-        {/* Budget Progress */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-        >
-          <Card>
-            <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 mb-4 sm:mb-6 flex items-center gap-2">
-              <div className="w-1 sm:w-2 h-4 sm:h-6 bg-gradient-to-b from-orange-500 to-red-500 rounded-full"></div>
-              Budget Progress
-            </h3>
-            <div className="spacing-sm">
-              {categoryExpenses.map((category, index) => (
-                <motion.div
-                  key={category.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.8 + index * 0.1 }}
-                  className="spacing-xs"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center space-x-3 min-w-0 flex-1">
-                      <div 
-                        className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center text-white text-sm sm:text-lg shadow-lg flex-shrink-0"
-                        style={{ backgroundColor: category.color }}
-                      >
-                        {category.icon}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-sm sm:text-base truncate">
-                          {category.name}
-                        </h4>
-                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">
-                          {formatCurrency(category.spent)} of {formatCurrency(category.budget)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <span className={`text-sm sm:text-lg font-bold ${
-                        category.percentage > 100 ? 'text-red-500' :
-                        category.percentage > 80 ? 'text-yellow-500' : 'text-green-500'
-                      }`}>
-                        {category.percentage.toFixed(1)}%
-                      </span>
-                    </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center">
+                    <DollarSign className="w-4 h-4 text-orange-600 dark:text-orange-400" />
                   </div>
-                  
-                  <div className="relative w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 sm:h-3">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${Math.min(category.percentage, 100)}%` }}
-                      transition={{ duration: 1, delay: 0.8 + index * 0.1 }}
-                      className={`h-2 sm:h-3 rounded-full relative overflow-hidden ${
-                        category.percentage > 100 ? 'bg-red-500' :
-                        category.percentage > 80 ? 'bg-yellow-500' : 'bg-gradient-to-r from-orange-500 to-red-500'
-                      }`}
-                    >
-                      <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
-                    </motion.div>
+                  <div>
+                    <p className="font-medium">{expense.description}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {formatDate(expense.date)}
+                    </p>
                   </div>
-                </motion.div>
-              ))}
-              {categoryExpenses.length === 0 && (
-                <div className="text-center py-6 sm:py-8 spacing-sm">
-                  <div className="text-4xl sm:text-6xl">🎯</div>
-                  <p className="text-gray-500 dark:text-gray-400 font-medium">
-                    No budgets set yet
-                  </p>
-                  <p className="text-sm text-gray-400 dark:text-gray-500">
-                    Create your first budget to track spending
-                  </p>
                 </div>
-              )}
-            </div>
-          </Card>
-        </motion.div>
-
-        {/* Recent Expenses */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-        >
-          <Card>
-            <div className="flex items-center justify-between mb-4 sm:mb-6 gap-3">
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2 min-w-0">
-                <div className="w-1 sm:w-2 h-4 sm:h-6 bg-gradient-to-b from-green-500 to-orange-500 rounded-full flex-shrink-0"></div>
-                <span className="truncate">Recent Expenses</span>
-              </h3>
-              {filteredExpenses.length > 5 && (
-                <Button 
-                  variant="secondary" 
-                  size="small" 
-                  className="flex-shrink-0"
-                  onClick={() => setShowAllExpenses(!showAllExpenses)}
-                >
-                  <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                  <span className="hidden sm:inline">
-                    {showAllExpenses ? 'Show Less' : 'View All'}
-                  </span>
-                  <span className="sm:hidden">
-                    {showAllExpenses ? 'Less' : 'All'}
-                  </span>
-                </Button>
-              )}
-            </div>
-            <div className="spacing-xs">
-              {recentExpenses.map((expense, index) => {
-                const category = categories.find(cat => cat.id === expense.categoryId);
-                return (
-                  <motion.div
-                    key={expense.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.9 + index * 0.1 }}
-                    className="flex items-center justify-between p-3 sm:p-4 rounded-lg sm:rounded-xl bg-gradient-to-r from-gray-50/50 to-gray-100/50 dark:from-gray-700/50 dark:to-gray-800/50 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 hover:shadow-lg transition-all duration-300"
-                  >
-                    <div className="flex items-center space-x-3 min-w-0 flex-1">
-                      <div 
-                        className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center text-white text-sm sm:text-lg shadow-lg flex-shrink-0"
-                        style={{ backgroundColor: category?.color || '#6b7280' }}
-                      >
-                        {category?.icon || '📝'}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm sm:text-base truncate">
-                          {expense.description}
-                        </p>
-                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">
-                          {formatDate(expense.date)} • {category?.name}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <span className="currency-medium">
-                        {formatCurrency(expense.amount)}
-                      </span>
-                    </div>
-                  </motion.div>
-                );
-              })}
-              {recentExpenses.length === 0 && (
-                <div className="text-center py-6 sm:py-8 spacing-sm">
-                  <div className="text-4xl sm:text-6xl">📝</div>
-                  <p className="text-gray-500 dark:text-gray-400 font-medium">
-                    No recent expenses
-                  </p>
-                  <Button 
-                    onClick={() => setIsExpenseModalOpen(true)} 
-                    variant="primary"
-                    className="mt-4"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Your First Expense
-                  </Button>
-                </div>
-              )}
-            </div>
-          </Card>
-        </motion.div>
-      </div>
-
-      {/* Floating Action Button */}
-      <button
-        onClick={() => {
-          console.log('Dashboard floating button clicked!');
-          console.log('Current modal state:', isExpenseModalOpen);
-          setIsExpenseModalOpen(true);
-          console.log('Modal state after set:', true);
-        }}
-        className="floating-action-button bg-gradient-to-r from-orange-500 to-red-500 text-white"
-        style={{
-          position: 'fixed',
-          zIndex: 99999,
-          bottom: '20px',
-          right: '20px',
-          width: '56px',
-          height: '56px',
-          borderRadius: '50%',
-          border: 'none',
-          outline: 'none',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          transition: 'all 0.2s ease'
-        }}
-      >
-        <Plus className="h-6 w-6 text-white" />
-      </button>
-
-      {/* Test button for debugging */}
-      <button
-        onClick={() => {
-          console.log('Test button clicked!');
-          setIsExpenseModalOpen(true);
-        }}
-        className="fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded z-[10000]"
-      >
-        Test Modal
-      </button>
+                <p className="font-semibold text-red-600 dark:text-red-400">
+                  -{formatCurrencyNumber(expense.amount)}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </OptimizedCard>
+      </motion.div>
 
       {/* Expense Modal */}
       <ExpenseModal
         isOpen={isExpenseModalOpen}
-        onClose={() => {
-          console.log('Modal closing');
-          setIsExpenseModalOpen(false);
-        }}
-        onSuccess={loadData}
+        onClose={handleExpenseModalClose}
+        onSuccess={handleExpenseSuccess}
       />
-      {isExpenseModalOpen && console.log('Modal is open!')}
-    </div>
+    </motion.div>
   );
 });
 

@@ -8,44 +8,8 @@ import { Capacitor } from '@capacitor/core'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { SplashScreen } from '@capacitor/splash-screen'
 
-// Performance optimization imports
-import { performanceMonitor, useGestureOptimization } from './utils/performance'
-
-// Initialize performance optimizations
-const initializePerformance = () => {
-  // Start FPS monitoring
-  performanceMonitor.startMonitoring()
-  
-  // Set up gesture optimization for touch devices
-  if ('ontouchstart' in window) {
-    // Add passive touch listeners for better performance
-    const options = { passive: true };
-    document.addEventListener('touchstart', () => {}, options);
-    document.addEventListener('touchmove', () => {}, options);
-    document.addEventListener('wheel', () => {}, options);
-    
-    // Optimize viewport for mobile
-    let viewport = document.querySelector('meta[name="viewport"]');
-    if (!viewport) {
-      viewport = document.createElement('meta');
-      viewport.name = 'viewport';
-      document.head.appendChild(viewport);
-    }
-    viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
-  }
-  
-  // Apply global performance styles
-  document.documentElement.style.transform = 'translateZ(0)';
-  document.body.style.transform = 'translateZ(0)';
-  
-  console.log('⚡ Performance optimizations initialized!');
-}
-
 // Initialize mobile app
 const initializeApp = async () => {
-  // Initialize performance first
-  initializePerformance()
-  
   if (Capacitor.isNativePlatform()) {
     try {
       // Set status bar style for mobile
@@ -63,7 +27,8 @@ const initializeApp = async () => {
 }
 
 // Initialize performance monitoring
-if ('performance' in window) {
+if (import.meta.env.PROD && 'performance' in window) {
+  // Basic performance monitoring without external dependencies
   window.addEventListener('load', () => {
     setTimeout(() => {
       const perfData = performance.getEntriesByType('navigation')[0];
@@ -73,22 +38,11 @@ if ('performance' in window) {
           'DOM Content Loaded': `${Math.round(perfData.domContentLoadedEventEnd - perfData.fetchStart)}ms`,
           'First Paint': performance.getEntriesByType('paint').find(entry => entry.name === 'first-paint')?.startTime || 'N/A',
           'Memory Usage': performance.memory ? `${Math.round(performance.memory.usedJSHeapSize / 1048576)}MB` : 'N/A',
-          'Platform': Capacitor.getPlatform(),
-          'Current FPS': performanceMonitor.fps,
-          'Touch Optimized': 'ontouchstart' in window ? 'Yes' : 'No'
+          'Platform': Capacitor.getPlatform()
         });
       }
-    }, 1000);
+    }, 0);
   });
-  
-  // Monitor FPS in development
-  if (import.meta.env.DEV) {
-    setInterval(() => {
-      if (performanceMonitor.fps < 50) {
-        console.warn(`⚠️ Low FPS detected: ${performanceMonitor.fps}fps`);
-      }
-    }, 5000);
-  }
 }
 
 // Initialize mobile features

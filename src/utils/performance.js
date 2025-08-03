@@ -1,117 +1,66 @@
-// Performance utilities for butter smooth React experience with 60fps animations
+// Performance utilities for butter smooth React experience
 import { useCallback, useMemo, useRef, useEffect, useState } from 'react';
 
-// Performance monitoring and FPS tracking
-export const performanceMonitor = {
-  frameCount: 0,
-  lastTime: performance.now(),
-  fps: 60,
-  
-  startMonitoring() {
-    const measureFPS = (currentTime) => {
-      this.frameCount++;
-      if (currentTime >= this.lastTime + 1000) {
-        this.fps = Math.round((this.frameCount * 1000) / (currentTime - this.lastTime));
-        this.frameCount = 0;
-        this.lastTime = currentTime;
-      }
-      requestAnimationFrame(measureFPS);
-    };
-    requestAnimationFrame(measureFPS);
-  }
-};
-
-// Hardware acceleration CSS properties
-export const hardwareAcceleration = {
-  willChange: 'transform, opacity',
-  backfaceVisibility: 'hidden',
-  perspective: '1000px',
-  WebkitBackfaceVisibility: 'hidden',
-  WebkitPerspective: '1000px'
-};
-
-// Device-specific animation preferences
-export const getAnimationLevel = () => {
-  // Check for reduced motion preference
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    return 'reduced';
-  }
-  
-  // Check device performance
-  const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-  const slowConnection = connection && (connection.downlink < 1.5 || connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g');
-  const lowMemory = navigator.deviceMemory && navigator.deviceMemory < 4;
-  const lowCores = navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4;
-  
-  if (slowConnection || lowMemory || lowCores) {
-    return 'performance';
-  }
-  
-  return 'full';
-};
-
-// RAF-based throttle for 60fps updates
-export const useRAFThrottle = (callback) => {
-  const callbackRef = useRef(callback);
-  const frameRef = useRef();
-  
-  callbackRef.current = callback;
+// Optimized throttle for smooth scrolling and animations
+export const useThrottle = (callback, delay) => {
+  const lastRun = useRef(Date.now());
   
   return useCallback((...args) => {
-    if (frameRef.current) return;
-    
-    frameRef.current = requestAnimationFrame(() => {
-      callbackRef.current(...args);
-      frameRef.current = null;
-    });
-  }, []);
+    if (Date.now() - lastRun.current >= delay) {
+      callback(...args);
+      lastRun.current = Date.now();
+    }
+  }, [callback, delay]);
 };
 
-// Optimized debounce with immediate first call
+// Debounce for search and input optimization
 export const useDebounce = (value, delay) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
-  const firstRun = useRef(true);
 
   useEffect(() => {
-    if (firstRun.current) {
-      setDebouncedValue(value);
-      firstRun.current = false;
-      return;
-    }
-
     const handler = setTimeout(() => {
       setDebouncedValue(value);
     }, delay);
 
-    return () => clearTimeout(handler);
+    return () => {
+      clearTimeout(handler);
+    };
   }, [value, delay]);
 
   return debouncedValue;
 };
 
-// Ultra-smooth 60fps animations with hardware acceleration
+// Ultra smooth animation configuration for 60fps
 export const smoothAnimations = {
   transition: {
     type: "spring",
-    stiffness: 400,
-    damping: 25,
-    mass: 0.5,
-    velocity: 0
+    stiffness: 300,
+    damping: 30,
+    mass: 0.8
   },
-  initial: { opacity: 0, y: 20, scale: 0.98 },
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 }
+};
+
+// Ultra smooth card animation
+export const cardAnimation = {
+  initial: { opacity: 0, scale: 0.96, y: 20 },
   animate: { 
     opacity: 1, 
-    y: 0, 
-    scale: 1,
+    scale: 1, 
+    y: 0,
     transition: {
-      duration: 0.4,
-      ease: [0.25, 0.1, 0.25, 1] // Custom cubic-bezier for smoothness
+      type: "spring",
+      stiffness: 400,
+      damping: 25,
+      mass: 0.5
     }
   },
   exit: { 
     opacity: 0, 
-    y: -20, 
-    scale: 0.98,
+    scale: 0.96, 
+    y: -10,
     transition: {
       duration: 0.2,
       ease: "easeInOut"
@@ -119,115 +68,36 @@ export const smoothAnimations = {
   }
 };
 
-// Intelligent card animation with device adaptation
-export const cardAnimation = (() => {
-  const animationLevel = getAnimationLevel();
-  
-  if (animationLevel === 'reduced') {
-    return {
-      initial: { opacity: 0 },
-      animate: { opacity: 1, transition: { duration: 0.2 } },
-      exit: { opacity: 0, transition: { duration: 0.1 } }
-    };
-  }
-  
-  if (animationLevel === 'performance') {
-    return {
-      initial: { opacity: 0, y: 10 },
-      animate: { 
-        opacity: 1, 
-        y: 0,
-        transition: { duration: 0.3, ease: "easeOut" }
-      },
-      exit: { 
-        opacity: 0, 
-        y: -5,
-        transition: { duration: 0.15 }
-      }
-    };
-  }
-  
-  // Full animations with hardware acceleration
-  return {
-    initial: { 
-      opacity: 0, 
-      scale: 0.96, 
-      y: 20,
-      ...hardwareAcceleration
-    },
-    animate: { 
-      opacity: 1, 
-      scale: 1, 
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 400,
-        damping: 25,
-        mass: 0.4,
-        velocity: 0
-      }
-    },
-    exit: { 
-      opacity: 0, 
-      scale: 0.96, 
-      y: -10,
-      transition: {
-        duration: 0.2,
-        ease: [0.4, 0, 0.2, 1]
-      }
+// Staggered children animation for lists
+export const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.05,
+      delayChildren: 0.1
     }
-  };
-})();
+  }
+};
 
-// Optimized staggered animation with adaptive timing
-export const staggerContainer = (() => {
-  const animationLevel = getAnimationLevel();
-  
-  return {
-    animate: {
-      transition: {
-        staggerChildren: animationLevel === 'reduced' ? 0 : animationLevel === 'performance' ? 0.03 : 0.05,
-        delayChildren: animationLevel === 'reduced' ? 0 : 0.1
-      }
+// Smooth hover animation
+export const hoverAnimation = {
+  whileHover: { 
+    scale: 1.02,
+    y: -2,
+    transition: {
+      type: "spring",
+      stiffness: 400,
+      damping: 25
     }
-  };
-})();
-
-// Ultra-smooth hover with touch optimization
-export const hoverAnimation = (() => {
-  const animationLevel = getAnimationLevel();
-  const isTouchDevice = 'ontouchstart' in window;
-  
-  if (animationLevel === 'reduced' || isTouchDevice) {
-    return {
-      whileHover: { scale: 1.01, transition: { duration: 0.1 } },
-      whileTap: { scale: 0.99, transition: { duration: 0.05 } }
-    };
+  },
+  whileTap: { 
+    scale: 0.98,
+    transition: {
+      type: "spring",
+      stiffness: 400,
+      damping: 25
+    }
   }
-  
-  return {
-    whileHover: { 
-      scale: 1.02,
-      y: -2,
-      ...hardwareAcceleration,
-      transition: {
-        type: "spring",
-        stiffness: 400,
-        damping: 25,
-        mass: 0.3
-      }
-    },
-    whileTap: { 
-      scale: 0.98,
-      transition: {
-        type: "spring",
-        stiffness: 600,
-        damping: 30,
-        mass: 0.2
-      }
-    }
-  };
-})();
+};
 
 // Memory optimization - memoized calculations
 export const useMemoizedCalculations = (expenses, budgets) => {
@@ -331,191 +201,236 @@ export const useSmoothState = (initialValue) => {
   return [state, setSmoothState];
 };
 
-// Touch-optimized event handlers with passive listeners
-export const useOptimizedTouchHandlers = () => {
+// Optimized event handlers to prevent excessive re-renders
+export const useOptimizedEventHandlers = () => {
   const handlers = useRef({});
 
-  const createTouchHandler = useCallback((fn, options = {}) => {
-    const key = `${fn.toString()}_${JSON.stringify(options)}`;
+  const createHandler = useCallback((fn) => {
+    if (!handlers.current[fn.toString()]) {
+      handlers.current[fn.toString()] = (...args) => fn(...args);
+    }
+    return handlers.current[fn.toString()];
+  }, []);
+
+  return createHandler;
+};
+
+// Performance monitoring hook
+export const usePerformanceMonitor = (componentName) => {
+  const renderCount = useRef(0);
+  const lastRenderTime = useRef(performance.now());
+
+  useEffect(() => {
+    renderCount.current += 1;
+    const currentTime = performance.now();
+    const timeSinceLastRender = currentTime - lastRenderTime.current;
     
-    if (!handlers.current[key]) {
-      handlers.current[key] = (event) => {
-        // Prevent default for touch events if needed
-        if (options.preventDefault && event.cancelable) {
-          event.preventDefault();
-        }
-        
-        // Use RAF for smooth updates
-        requestAnimationFrame(() => fn(event));
-      };
+    if (import.meta.env.DEV) {
+      console.log(`🔄 ${componentName} render #${renderCount.current} (${timeSinceLastRender.toFixed(2)}ms)`);
     }
     
-    return handlers.current[key];
-  }, []);
+    lastRenderTime.current = currentTime;
+  });
 
-  return createTouchHandler;
-};
-
-// Smooth scroll optimization with momentum
-export const useSmoothScroll = () => {
-  const scrollRef = useRef();
-  
-  useEffect(() => {
-    const element = scrollRef.current;
-    if (!element) return;
-    
-    // Enable smooth scrolling with momentum
-    element.style.webkitOverflowScrolling = 'touch';
-    element.style.scrollBehavior = 'smooth';
-    element.style.overscrollBehavior = 'contain';
-    
-    // Add scroll optimization
-    element.addEventListener('scroll', (e) => {
-      e.target.style.pointerEvents = 'none';
-      clearTimeout(e.target.scrollTimer);
-      e.target.scrollTimer = setTimeout(() => {
-        e.target.style.pointerEvents = 'auto';
-      }, 150);
-    }, { passive: true });
-    
-    return () => {
-      if (element.scrollTimer) {
-        clearTimeout(element.scrollTimer);
-      }
-    };
-  }, []);
-  
-  return scrollRef;
-};
-
-// Performance-optimized intersection observer
-export const usePerformantIntersectionObserver = (callback, options = {}) => {
-  const elementRef = useRef();
-  const callbackRef = useRef(callback);
-  
-  callbackRef.current = callback;
-  
-  useEffect(() => {
-    const element = elementRef.current;
-    if (!element) return;
-    
-    const observer = new IntersectionObserver((entries) => {
-      // Use RAF for smooth callback execution
-      requestAnimationFrame(() => {
-        callbackRef.current(entries);
-      });
-    }, {
-      threshold: 0.1,
-      rootMargin: '20px',
-      ...options
-    });
-    
-    observer.observe(element);
-    
-    return () => observer.disconnect();
-  }, []);
-  
-  return elementRef;
-};
-
-// Mobile-specific performance optimizations
-export const mobilePerfOptimizations = {
-  // Touch action optimization
-  touchAction: 'manipulation',
-  
-  // Prevent text selection on touch
-  userSelect: 'none',
-  WebkitUserSelect: 'none',
-  
-  // Optimize tap highlight
-  WebkitTapHighlightColor: 'transparent',
-  
-  // Enable hardware acceleration
-  ...hardwareAcceleration,
-  
-  // Optimize font rendering
-  WebkitFontSmoothing: 'antialiased',
-  MozOsxFontSmoothing: 'grayscale',
-  
-  // Prevent overscroll
-  overscrollBehavior: 'contain'
-};
-
-// Gesture-optimized event listeners
-export const useGestureOptimization = () => {
-  useEffect(() => {
-    // Add passive event listeners for better scroll performance
-    const options = { passive: true };
-    
-    document.addEventListener('touchstart', () => {}, options);
-    document.addEventListener('touchmove', () => {}, options);
-    document.addEventListener('wheel', () => {}, options);
-    
-    // Optimize viewport for mobile
-    let viewport = document.querySelector('meta[name="viewport"]');
-    if (!viewport) {
-      viewport = document.createElement('meta');
-      viewport.name = 'viewport';
-      document.head.appendChild(viewport);
-    }
-    
-    viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
-    
-    // Start performance monitoring
-    performanceMonitor.startMonitoring();
-    
-    return () => {
-      // Cleanup if needed
-    };
-  }, []);
-};
-
-// High-performance animation frame hook
-export const useAnimationFrame = (callback) => {
-  const callbackRef = useRef(callback);
-  const frameRef = useRef();
-  
-  callbackRef.current = callback;
-  
-  const animate = useCallback(() => {
-    callbackRef.current();
-    frameRef.current = requestAnimationFrame(animate);
-  }, []);
-  
-  useEffect(() => {
-    frameRef.current = requestAnimationFrame(animate);
-    
-    return () => {
-      if (frameRef.current) {
-        cancelAnimationFrame(frameRef.current);
-      }
-    };
-  }, [animate]);
-  
-  return () => {
-    if (frameRef.current) {
-      cancelAnimationFrame(frameRef.current);
-    }
+  return {
+    renderCount: renderCount.current,
+    timeSinceLastRender: performance.now() - lastRenderTime.current
   };
 };
 
-// Batched DOM updates for smooth performance
-export const useBatchedUpdates = () => {
-  const updates = useRef([]);
-  const rafRef = useRef();
-  
-  const batchUpdate = useCallback((updateFn) => {
-    updates.current.push(updateFn);
+// Hardware acceleration utilities
+export const enableHardwareAcceleration = (element) => {
+  if (element) {
+    element.style.transform = 'translateZ(0)';
+    element.style.willChange = 'transform';
+  }
+};
+
+// Batch state updates for better performance
+export const useBatchState = (initialState) => {
+  const [state, setState] = useState(initialState);
+  const batchRef = useRef([]);
+  const timeoutRef = useRef(null);
+
+  const batchUpdate = useCallback((updates) => {
+    batchRef.current.push(...updates);
     
-    if (!rafRef.current) {
-      rafRef.current = requestAnimationFrame(() => {
-        updates.current.forEach(fn => fn());
-        updates.current = [];
-        rafRef.current = null;
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
+    timeoutRef.current = setTimeout(() => {
+      setState(prevState => {
+        let newState = { ...prevState };
+        batchRef.current.forEach(update => {
+          newState = { ...newState, ...update };
+        });
+        batchRef.current = [];
+        return newState;
       });
+    }, 16); // One frame at 60fps
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  return [state, batchUpdate];
+};
+
+// Optimized list rendering with windowing
+export const useOptimizedList = (items, itemHeight = 60, windowSize = 10) => {
+  const [visibleRange, setVisibleRange] = useState({ start: 0, end: windowSize });
+  
+  const updateVisibleRange = useCallback((scrollTop) => {
+    const start = Math.floor(scrollTop / itemHeight);
+    const end = Math.min(start + windowSize, items.length);
+    setVisibleRange({ start, end });
+  }, [items.length, itemHeight, windowSize]);
+
+  const visibleItems = useMemo(() => {
+    return items.slice(visibleRange.start, visibleRange.end);
+  }, [items, visibleRange]);
+
+  return {
+    visibleItems,
+    updateVisibleRange,
+    totalHeight: items.length * itemHeight,
+    startIndex: visibleRange.start
+  };
+};
+
+// Memory cleanup utilities
+export const useCleanup = () => {
+  const cleanupRef = useRef([]);
+
+  const addCleanup = useCallback((cleanupFn) => {
+    cleanupRef.current.push(cleanupFn);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      cleanupRef.current.forEach(cleanup => cleanup());
+      cleanupRef.current = [];
+    };
+  }, []);
+
+  return addCleanup;
+};
+
+// Optimized image loading
+export const useOptimizedImage = (src, fallback) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    if (!src) return;
+
+    const img = new Image();
+    img.onload = () => setIsLoaded(true);
+    img.onerror = () => setHasError(true);
+    img.src = src;
+
+    return () => {
+      img.onload = null;
+      img.onerror = null;
+    };
+  }, [src]);
+
+  return {
+    isLoaded,
+    hasError,
+    src: hasError ? fallback : src
+  };
+};
+
+// Reduced motion support
+export const useReducedMotion = () => {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+
+    const handleChange = (e) => setPrefersReducedMotion(e.matches);
+    mediaQuery.addEventListener('change', handleChange);
+
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  return prefersReducedMotion;
+};
+
+// Optimized scroll handling
+export const useOptimizedScroll = (callback, options = {}) => {
+  const { throttle = 16, passive = true } = options;
+  const callbackRef = useRef(callback);
+  const tickingRef = useRef(false);
+
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
+
+  const handleScroll = useCallback((event) => {
+    if (!tickingRef.current) {
+      requestAnimationFrame(() => {
+        callbackRef.current(event);
+        tickingRef.current = false;
+      });
+      tickingRef.current = true;
     }
   }, []);
-  
-  return batchUpdate;
+
+  useEffect(() => {
+    const element = document;
+    element.addEventListener('scroll', handleScroll, { passive });
+    
+    return () => {
+      element.removeEventListener('scroll', handleScroll);
+    };
+  }, [handleScroll, passive]);
+
+  return handleScroll;
+};
+
+// Performance budget monitoring
+export const usePerformanceBudget = (budget = 16) => {
+  const [isOverBudget, setIsOverBudget] = useState(false);
+  const frameTimeRef = useRef(0);
+
+  useEffect(() => {
+    let frameId;
+    
+    const measureFrame = () => {
+      const start = performance.now();
+      
+      frameId = requestAnimationFrame(() => {
+        const end = performance.now();
+        const frameTime = end - start;
+        frameTimeRef.current = frameTime;
+        
+        setIsOverBudget(frameTime > budget);
+        
+        measureFrame();
+      });
+    };
+    
+    measureFrame();
+    
+    return () => {
+      if (frameId) {
+        cancelAnimationFrame(frameId);
+      }
+    };
+  }, [budget]);
+
+  return {
+    isOverBudget,
+    frameTime: frameTimeRef.current
+  };
 };
  

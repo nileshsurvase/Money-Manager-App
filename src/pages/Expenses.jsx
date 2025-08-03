@@ -444,34 +444,14 @@ const Expenses = () => {
       />
 
       {/* Floating Action Button */}
-      <button
-        onClick={() => {
-          console.log('Floating button clicked!');
-          console.log('Current modal state:', isExpenseModalOpen);
-          setIsExpenseModalOpen(true);
-          console.log('Modal state after set:', true);
-        }}
-        className="floating-action-button bg-gradient-to-r from-orange-500 to-red-500 text-white"
-        style={{
-          position: 'fixed',
-          zIndex: 99999,
-          bottom: '20px',
-          right: '20px',
-          width: '56px',
-          height: '56px',
-          borderRadius: '50%',
-          border: 'none',
-          outline: 'none',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          transition: 'all 0.2s ease'
-        }}
+      <motion.button
+        onClick={() => setIsExpenseModalOpen(true)}
+        className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-orange-500 to-red-500 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-50 flex items-center justify-center"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
       >
         <Plus className="h-6 w-6 text-white" />
-      </button>
+      </motion.button>
 
       {/* Delete Confirmation Modal */}
       <Modal
