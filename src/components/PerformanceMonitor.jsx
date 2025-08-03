@@ -33,7 +33,7 @@ const PerformanceMonitor = () => {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 bg-black/80 text-white text-xs px-3 py-2 rounded-lg font-mono z-50 backdrop-blur-sm">
+    <div className="fixed bottom-4 left-4 bg-black/80 text-white text-xs px-3 py-2 rounded-lg font-mono z-40 backdrop-blur-sm">
       <div className="space-y-1">
         <div className={`flex justify-between gap-4 ${getFpsColor(metrics.fps)}`}>
           <span>FPS:</span>

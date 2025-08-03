@@ -690,6 +690,25 @@
   }
 }
 
+/* Floating Action Button */
+.floating-action-button {
+  position: fixed !important;
+  z-index: 100 !important;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform, opacity;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  pointer-events: auto;
+}
+
+/* Ensure FAB is always visible above other content */
+.floating-action-button:hover {
+  z-index: 101 !important;
+}
+
 /* Mobile performance optimizations */
 @media (max-width: 768px) {
   /* Reduce animations on mobile for better performance */
@@ -708,5 +727,13 @@
   .perf-scroll {
     scroll-snap-type: y proximity;
     overscroll-behavior-y: contain;
+  }
+  
+  /* Floating action button mobile optimization */
+  .floating-action-button {
+    bottom: 1rem !important;
+    right: 1rem !important;
+    width: 3rem !important;
+    height: 3rem !important;
   }
 }
