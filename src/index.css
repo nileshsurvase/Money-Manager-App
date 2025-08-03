@@ -693,15 +693,22 @@
 /* Floating Action Button */
 .floating-action-button {
   position: fixed !important;
-  z-index: 100 !important;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  will-change: transform, opacity;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  pointer-events: auto;
+  z-index: 9999 !important;
+  transform: translateZ(0) !important;
+  -webkit-transform: translateZ(0) !important;
+  will-change: transform, opacity !important;
+  -webkit-backface-visibility: hidden !important;
+  backface-visibility: hidden !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+  pointer-events: auto !important;
+  bottom: 1rem !important;
+  right: 1rem !important;
+}
+
+/* Ensure FAB is always visible above other content */
+.floating-action-button:hover {
+  z-index: 10000 !important;
 }
 
 /* Ensure FAB is always visible above other content */

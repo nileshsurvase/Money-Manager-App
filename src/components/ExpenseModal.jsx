@@ -233,7 +233,6 @@ const ExpenseModal = ({ isOpen, onClose, expense = null, onSuccess }) => {
             value={formData.notes}
             onChange={handleInputChange}
             placeholder="Add any additional notes..."
-            multiline
             rows={3}
           />
 
