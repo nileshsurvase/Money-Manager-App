@@ -1658,14 +1658,3 @@ export const generateSampleDiaryFile = () => {
 
   return JSON.stringify(sampleData, null, 2);
 }; 
-      daily: { enabled: true, time: '20:00' },
-      weekly: { enabled: true, time: '19:00' },
-      monthly: { enabled: true, time: '18:00' },
-      random: { enabled: false, frequency: 3 }
-    },
-    exportDate: new Date().toISOString(),
-    version: '2.0'
-  };
-
-  return JSON.stringify(sampleData, null, 2);
-}; 
