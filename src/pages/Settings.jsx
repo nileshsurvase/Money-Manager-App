@@ -25,7 +25,9 @@ import {
   Heart,
   RefreshCcw,
   Eye,
-  EyeOff
+  EyeOff,
+  ArrowUpRight,
+  Target
 } from 'lucide-react';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -49,94 +51,6 @@ import {
   exportBudgetsToCSV,
   generateSampleMoneyManagerFile
 } from '../utils/storage';
-
-// Ultra-smooth card animation for settings cards
-const settingsCardAnimation = {
-  initial: { opacity: 0, y: 15, scale: 0.98 },
-  animate: { 
-    opacity: 1, 
-    y: 0,
-    scale: 1,
-    transition: {
-      type: "spring",
-      stiffness: 500,
-      damping: 30,
-      mass: 0.4
-    }
-  }
-};
-
-// Beautiful toggle switch component
-const ToggleSwitch = memo(({ enabled, onChange, color = 'orange' }) => {
-  const colorMap = {
-    orange: 'peer-checked:bg-orange-500',
-    green: 'peer-checked:bg-emerald-500',
-    blue: 'peer-checked:bg-blue-500'
-  };
-
-  return (
-    <label className="relative inline-flex items-center cursor-pointer">
-      <input
-        type="checkbox"
-        checked={enabled}
-        onChange={(e) => onChange(e.target.checked)}
-        className="sr-only peer"
-      />
-      <div className={`w-12 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300/30 dark:peer-focus:ring-orange-800/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 ${colorMap[color]} transition-all duration-300`}></div>
-    </label>
-  );
-});
-
-ToggleSwitch.displayName = 'ToggleSwitch';
-
-// Modern action button component
-const ActionButton = memo(({ icon: Icon, title, description, onClick, variant = 'primary', disabled = false, loading = false }) => (
-  <motion.button
-    onClick={onClick}
-    disabled={disabled || loading}
-    className={`w-full p-4 rounded-xl border-2 transition-all duration-300 ${
-      variant === 'primary' 
-        ? 'border-orange-200 bg-gradient-to-r from-orange-50 to-red-50 hover:from-orange-100 hover:to-red-100 dark:from-orange-950/30 dark:to-red-950/30 dark:hover:from-orange-950/50 dark:hover:to-red-950/50 dark:border-orange-800/30'
-        : variant === 'success'
-        ? 'border-emerald-200 bg-gradient-to-r from-emerald-50 to-green-50 hover:from-emerald-100 hover:to-green-100 dark:from-emerald-950/30 dark:to-green-950/30 dark:hover:from-emerald-950/50 dark:hover:to-green-950/50 dark:border-emerald-800/30'
-        : variant === 'danger'
-        ? 'border-red-200 bg-gradient-to-r from-red-50 to-pink-50 hover:from-red-100 hover:to-pink-100 dark:from-red-950/30 dark:to-pink-950/30 dark:hover:from-red-950/50 dark:hover:to-pink-950/50 dark:border-red-800/30'
-        : 'border-gray-200 bg-gradient-to-r from-gray-50 to-slate-50 hover:from-gray-100 hover:to-slate-100 dark:from-gray-950/30 dark:to-slate-950/30 dark:hover:from-gray-950/50 dark:hover:to-slate-950/50 dark:border-gray-800/30'
-    } disabled:opacity-50 disabled:cursor-not-allowed group`}
-    whileHover={{ scale: disabled ? 1 : 1.02, y: disabled ? 0 : -2 }}
-    whileTap={{ scale: disabled ? 1 : 0.98 }}
-    transition={{ type: "spring", stiffness: 400, damping: 25 }}
-  >
-    <div className="flex items-center space-x-3">
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-        variant === 'primary' ? 'bg-gradient-to-r from-orange-500 to-red-500' :
-        variant === 'success' ? 'bg-gradient-to-r from-emerald-500 to-green-500' :
-        variant === 'danger' ? 'bg-gradient-to-r from-red-500 to-pink-500' :
-        'bg-gradient-to-r from-gray-500 to-slate-500'
-      } shadow-lg group-hover:shadow-xl transition-shadow duration-300`}>
-        {loading ? (
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-          />
-        ) : (
-          <Icon className="h-5 w-5 text-white" />
-        )}
-      </div>
-      <div className="text-left flex-1">
-        <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-          {title}
-        </h4>
-        <p className="text-xs text-gray-600 dark:text-gray-400">
-          {description}
-        </p>
-      </div>
-    </div>
-  </motion.button>
-));
-
-ActionButton.displayName = 'ActionButton';
 
 const Settings = memo(() => {
   const { isDark, toggleTheme } = useTheme();
@@ -166,7 +80,7 @@ const Settings = memo(() => {
       setSettings(prev => ({ ...prev, ...savedSettings, darkMode: isDark }));
     } catch (error) {
       console.error('Error loading settings:', error);
-      toast.error('Failed to load settings');
+      toast.error?.('Failed to load settings');
     }
   }, [isDark, toast]);
 
@@ -180,10 +94,10 @@ const Settings = memo(() => {
     try {
       await saveSettings(settings);
       setHasChanges(false);
-      toast.success('Settings saved successfully!');
+      toast.success?.('Settings saved successfully!');
     } catch (error) {
       console.error('Error saving settings:', error);
-      toast.error('Failed to save settings');
+      toast.error?.('Failed to save settings');
     } finally {
       setSaving(false);
     }
@@ -192,20 +106,20 @@ const Settings = memo(() => {
   const exportMoneyManagerCSV = useCallback(async () => {
     try {
       await exportMoneyManagerToCSV();
-      toast.success('Expenses exported successfully!');
+      toast.success?.('Expenses exported successfully!');
     } catch (error) {
       console.error('Export error:', error);
-      toast.error('Failed to export data');
+      toast.error?.('Failed to export data');
     }
   }, [toast]);
 
   const exportBudgetsCSV = useCallback(async () => {
     try {
       await exportBudgetsToCSV();
-      toast.success('Budgets exported successfully!');
+      toast.success?.('Budgets exported successfully!');
     } catch (error) {
       console.error('Export error:', error);
-      toast.error('Failed to export budgets');
+      toast.error?.('Failed to export budgets');
     }
   }, [toast]);
 
@@ -224,11 +138,11 @@ const Settings = memo(() => {
         if (data.categories) saveCategories(data.categories);
         if (data.budgets) saveBudgets(data.budgets);
         
-        toast.success('Data imported successfully!');
+        toast.success?.('Data imported successfully!');
         setTimeout(() => window.location.reload(), 1000);
-    } catch (error) {
+      } catch (error) {
         console.error('Import error:', error);
-        toast.error('Failed to import data');
+        toast.error?.('Failed to import data');
       } finally {
         setImporting(false);
         event.target.value = '';
@@ -240,284 +154,407 @@ const Settings = memo(() => {
 
   const deleteAllData = useCallback(async () => {
     try {
-    Object.values(STORAGE_KEYS).forEach(key => {
-      localStorage.removeItem(key);
-    });
-    
-      toast.success('All data deleted successfully!');
+      Object.values(STORAGE_KEYS).forEach(key => {
+        localStorage.removeItem(key);
+      });
+      
+      toast.success?.('All data deleted successfully!');
       setShowDeleteModal(false);
       setTimeout(() => window.location.reload(), 1000);
     } catch (error) {
       console.error('Delete error:', error);
-      toast.error('Failed to delete data');
+      toast.error?.('Failed to delete data');
     }
   }, [toast]);
 
   const generateSampleData = useCallback(async () => {
     try {
       await generateSampleMoneyManagerFile();
-      toast.success('Sample data generated!');
+      toast.success?.('Sample data generated!');
       setTimeout(() => window.location.reload(), 1000);
     } catch (error) {
       console.error('Sample data error:', error);
-      toast.error('Failed to generate sample data');
+      toast.error?.('Failed to generate sample data');
     }
   }, [toast]);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="spacing-lg">
+      {/* Beautiful Header with Dashboard Theme */}
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-red-500/5 rounded-2xl sm:rounded-3xl blur-xl"></div>
+        <Card variant="glass" className="relative">
+          <div className="flex flex-col space-y-4 sm:space-y-6">
+            <div className="space-y-2">
+              <h1 className="text-gradient flex items-center gap-2 sm:gap-3">
+                <SettingsIcon className="h-6 w-6 sm:h-8 sm:w-8 text-orange-500" />
+                Settings & Preferences
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base lg:text-lg">
+                Customize your ClarityOS experience
+              </p>
+            </div>
+            
+            {/* Quick Save Action */}
+            {hasChanges && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex rounded-xl border border-orange-200/50 dark:border-orange-700/50 bg-orange-50/50 dark:bg-orange-900/20 backdrop-blur-md p-4"
+              >
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center space-x-3">
+                    <AlertTriangle className="h-5 w-5 text-orange-500" />
+                    <span className="text-sm font-medium text-orange-700 dark:text-orange-300">
+                      You have unsaved changes
+                    </span>
+                  </div>
+                  <Button
+                    onClick={saveSettingsData}
+                    loading={saving}
+                    className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                  >
+                    {saving ? 'Saving...' : 'Save Now'}
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+          </div>
+        </Card>
+      </div>
+
+      {/* Appearance & Theme */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-2"
-      >
-        <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center shadow-lg">
-          <SettingsIcon className="h-8 w-8 text-white" />
-        </div>
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-          Settings
-            </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Customize your experience
-        </p>
-      </motion.div>
-
-      {/* Quick Actions */}
-      <motion.div
-        variants={settingsCardAnimation}
-        initial="initial"
-        animate="animate"
         transition={{ delay: 0.1 }}
       >
-        <Card className="border-orange-200 dark:border-orange-800 bg-gradient-to-r from-orange-50/50 to-red-50/50 dark:from-orange-950/20 dark:to-red-950/20">
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <Zap className="h-5 w-5 text-orange-500" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                Quick Actions
-              </h3>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <ActionButton
-                icon={Save}
-                title="Save Settings"
-                description={hasChanges ? "You have unsaved changes" : "All settings saved"}
-                onClick={saveSettingsData}
-                variant={hasChanges ? "primary" : "secondary"}
-                loading={saving}
-                disabled={!hasChanges}
-              />
-              
-              <ActionButton
-                icon={RefreshCcw}
-                title="Refresh Data"
-                description="Reload all settings"
-                onClick={loadSettings}
-                variant="secondary"
-              />
-            </div>
-          </div>
-        </Card>
-      </motion.div>
-
-      {/* Appearance & Preferences */}
-          <motion.div
-        variants={settingsCardAnimation}
-        initial="initial"
-        animate="animate"
-        transition={{ delay: 0.2 }}
-      >
-        <Card className="border-purple-200 dark:border-purple-800 bg-gradient-to-r from-purple-50/50 to-indigo-50/50 dark:from-purple-950/20 dark:to-indigo-950/20">
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Palette className="h-5 w-5 text-purple-500" />
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                Appearance & Preferences
-                  </h3>
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-indigo-500/5 rounded-2xl blur-xl"></div>
+          <Card variant="glass" className="relative">
+            <div className="space-y-6">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center justify-center">
+                  <Palette className="h-5 w-5 text-white" />
                 </div>
-                
-            <div className="space-y-4">
-              {/* Theme Toggle */}
-              <div className="flex items-center justify-between p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl border border-purple-200/50 dark:border-purple-700/50">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    Appearance & Theme
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Customize how ClarityOS looks and feels
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {/* Theme Toggle */}
+                <div className="glass-panel p-4 rounded-xl">
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       {isDark ? (
-                    <Moon className="h-5 w-5 text-purple-500" />
+                        <Moon className="h-5 w-5 text-indigo-500" />
                       ) : (
                         <Sun className="h-5 w-5 text-yellow-500" />
                       )}
                       <div>
                         <p className="font-medium text-gray-900 dark:text-gray-100">
-                      Dark Mode
+                          Dark Mode
                         </p>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {isDark ? 'Dark theme active' : 'Light theme active'}
-                    </p>
+                          {isDark ? 'Dark theme active' : 'Light theme active'}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={toggleTheme}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${
+                        isDark ? 'bg-gradient-to-r from-purple-500 to-indigo-500' : 'bg-gray-200'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${
+                          isDark ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
                   </div>
                 </div>
-                <ToggleSwitch
-                  enabled={isDark}
-                  onChange={toggleTheme}
-                  color="purple"
-                />
-                </div>
-                
-              {/* Currency Selection */}
-              <div className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl border border-purple-200/50 dark:border-purple-700/50">
-                <div className="flex items-center space-x-3 mb-3">
-                  <DollarSign className="h-5 w-5 text-purple-500" />
-                        <div>
-                          <p className="font-medium text-gray-900 dark:text-gray-100">
-                      Currency
-                          </p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Choose your preferred currency
-                    </p>
-                  </div>
-                </div>
-                <Select
-                  value={currency}
-                  onChange={(value) => {
-                    setCurrency(value);
-                    handleSettingChange('currency', value);
-                  }}
-                  options={currencies?.map(curr => ({
-                    value: curr.code,
-                    label: `${curr.symbol} ${curr.code} - ${curr.name}`
-                  })) || []}
-                  className="w-full"
-                />
-              </div>
-                </div>
-              </div>
-            </Card>
-          </motion.div>
 
-          {/* Data Management */}
-          <motion.div
-        variants={settingsCardAnimation}
-        initial="initial"
-        animate="animate"
-        transition={{ delay: 0.3 }}
+                {/* Currency Selection */}
+                <div className="glass-panel p-4 rounded-xl">
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3">
+                      <DollarSign className="h-5 w-5 text-green-500" />
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">
+                          Currency
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Your preferred currency
+                        </p>
+                      </div>
+                    </div>
+                    <Select
+                      value={currency}
+                      onChange={(value) => {
+                        setCurrency(value);
+                        handleSettingChange('currency', value);
+                      }}
+                      options={currencies?.map(curr => ({
+                        value: curr.code,
+                        label: `${curr.symbol} ${curr.code} - ${curr.name}`
+                      })) || []}
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </motion.div>
+
+      {/* Data Management & Export */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
       >
-        <Card className="border-emerald-200 dark:border-emerald-800 bg-gradient-to-r from-emerald-50/50 to-green-50/50 dark:from-emerald-950/20 dark:to-green-950/20">
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-              <Database className="h-5 w-5 text-emerald-500" />
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-green-500/5 rounded-2xl blur-xl"></div>
+          <Card variant="glass" className="relative">
+            <div className="space-y-6">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 flex items-center justify-center">
+                  <Database className="h-5 w-5 text-white" />
+                </div>
+                <div>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                     Data Management
                   </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Export, import, and manage your financial data
+                  </p>
                 </div>
+              </div>
+
+              {/* Export Actions */}
+              <div className="space-y-4">
+                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                  <Download className="h-4 w-4" />
+                  Advanced Excel Exports
+                </h4>
                 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <ActionButton
-                icon={Download}
-                title="Export Expenses"
-                description="Download expenses as CSV"
-                onClick={exportMoneyManagerCSV}
-                variant="success"
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <button
+                    onClick={exportMoneyManagerCSV}
+                    className="glass-panel p-4 rounded-xl hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-all duration-300 group"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-emerald-500 to-green-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <FileSpreadsheet className="h-4 w-4 text-white" />
+                      </div>
+                      <div className="text-left">
+                        <p className="font-medium text-gray-900 dark:text-gray-100">
+                          Expenses CSV
+                        </p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          All expense data
+                        </p>
+                      </div>
+                      <ArrowUpRight className="h-4 w-4 text-gray-400 group-hover:text-emerald-500 transition-colors duration-300" />
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={exportBudgetsCSV}
+                    className="glass-panel p-4 rounded-xl hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-all duration-300 group"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <Target className="h-4 w-4 text-white" />
+                      </div>
+                      <div className="text-left">
+                        <p className="font-medium text-gray-900 dark:text-gray-100">
+                          Budgets CSV
+                        </p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          Budget tracking data
+                        </p>
+                      </div>
+                      <ArrowUpRight className="h-4 w-4 text-gray-400 group-hover:text-blue-500 transition-colors duration-300" />
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      const allData = {
+                        expenses: getExpenses(),
+                        categories: getCategories(),
+                        budgets: getBudgets(),
+                        settings: settings,
+                        exportDate: new Date().toISOString(),
+                        version: '2.0'
+                      };
+                      const dataStr = JSON.stringify(allData, null, 2);
+                      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                      const link = document.createElement('a');
+                      link.href = URL.createObjectURL(dataBlob);
+                      link.download = `money-manager-full-backup-${new Date().toISOString().split('T')[0]}.json`;
+                      link.click();
+                      toast.success?.('Complete backup exported!');
+                    }}
+                    className="glass-panel p-4 rounded-xl hover:bg-orange-50/50 dark:hover:bg-orange-900/20 transition-all duration-300 group"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <Shield className="h-4 w-4 text-white" />
+                      </div>
+                      <div className="text-left">
+                        <p className="font-medium text-gray-900 dark:text-gray-100">
+                          Full Backup
+                        </p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          Complete data export
+                        </p>
+                      </div>
+                      <ArrowUpRight className="h-4 w-4 text-gray-400 group-hover:text-orange-500 transition-colors duration-300" />
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* Import & Other Actions */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-gray-200/50 dark:border-gray-700/50">
+                <button
+                  onClick={() => document.getElementById('import-file').click()}
+                  disabled={importing}
+                  className="glass-panel p-4 rounded-xl hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-all duration-300 group disabled:opacity-50"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center">
+                      {importing ? (
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+                        />
+                      ) : (
+                        <Upload className="h-4 w-4 text-white" />
+                      )}
+                    </div>
+                    <div className="text-left">
+                      <p className="font-medium text-gray-900 dark:text-gray-100">
+                        {importing ? 'Importing...' : 'Import Data'}
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        Restore from backup
+                      </p>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={generateSampleData}
+                  className="glass-panel p-4 rounded-xl hover:bg-purple-50/50 dark:hover:bg-purple-900/20 transition-all duration-300 group"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                      <Sparkles className="h-4 w-4 text-white" />
+                    </div>
+                    <div className="text-left">
+                      <p className="font-medium text-gray-900 dark:text-gray-100">
+                        Sample Data
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        Generate demo data
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              </div>
+
+              <input
+                id="import-file"
+                type="file"
+                accept=".json"
+                onChange={handleImport}
+                className="hidden"
               />
-              
-              <ActionButton
-                icon={Download}
-                title="Export Budgets"
-                description="Download budgets as CSV"
-                onClick={exportBudgetsCSV}
-                variant="success"
-              />
-              
-              <ActionButton
-                icon={Upload}
-                title="Import Data"
-                description="Upload backup file"
-                onClick={() => document.getElementById('import-file').click()}
-                variant="primary"
-                loading={importing}
-              />
-              
-              <ActionButton
-                icon={Sparkles}
-                title="Sample Data"
-                description="Generate demo data"
-                onClick={generateSampleData}
-                variant="secondary"
-              />
-          </div>
-          
-            {/* Hidden file input */}
-            <input
-              id="import-file"
-              type="file"
-              accept=".json"
-              onChange={handleImport}
-              className="hidden"
-            />
-          </div>
-        </Card>
+            </div>
+          </Card>
+        </div>
+      </motion.div>
+
+      {/* Mobile Performance */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-cyan-500/5 rounded-2xl blur-xl"></div>
+          <Card variant="glass" className="relative">
+            <div className="flex items-center justify-center space-x-6 py-6">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
+                <Smartphone className="h-8 w-8 text-white" />
+              </div>
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                  <Zap className="h-5 w-5 text-blue-500" />
+                  Lightning Fast Performance
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  Optimized for 60fps mobile experience
+                </p>
+              </div>
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center">
+                <CheckCircle className="h-8 w-8 text-white" />
+              </div>
+            </div>
+          </Card>
+        </div>
       </motion.div>
 
       {/* Danger Zone */}
       <motion.div
-        variants={settingsCardAnimation}
-        initial="initial"
-        animate="animate"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
-        <Card className="border-red-200 dark:border-red-800 bg-gradient-to-r from-red-50/50 to-pink-50/50 dark:from-red-950/20 dark:to-pink-950/20">
-        <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <AlertTriangle className="h-5 w-5 text-red-500" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                Danger Zone
-              </h3>
-          </div>
-          
-            <ActionButton
-              icon={Trash2}
-              title="Delete All Data"
-              description="Permanently remove all data"
-              onClick={() => setShowDeleteModal(true)}
-              variant="danger"
-            />
-          </div>
-        </Card>
-      </motion.div>
-
-      {/* Mobile Performance Info */}
-      <motion.div
-        variants={settingsCardAnimation}
-        initial="initial"
-        animate="animate"
-        transition={{ delay: 0.5 }}
-      >
-        <Card className="border-blue-200 dark:border-blue-800 bg-gradient-to-r from-blue-50/50 to-cyan-50/50 dark:from-blue-950/20 dark:to-cyan-950/20">
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <Smartphone className="h-5 w-5 text-blue-500" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                Mobile Performance
-              </h3>
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 to-pink-500/5 rounded-2xl blur-xl"></div>
+          <Card variant="glass" className="relative border-red-200/30 dark:border-red-800/30">
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-red-500 to-pink-500 flex items-center justify-center">
+                  <AlertTriangle className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-red-600 dark:text-red-400">
+                    Danger Zone
+                  </h3>
+                  <p className="text-sm text-red-600/80 dark:text-red-400/80">
+                    Irreversible actions - proceed with caution
+                  </p>
+                </div>
+              </div>
+              
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                className="w-full p-4 rounded-xl border-2 border-red-200/50 dark:border-red-800/50 bg-red-50/50 dark:bg-red-900/20 hover:bg-red-100/50 dark:hover:bg-red-900/40 transition-all duration-300 group"
+              >
+                <div className="flex items-center justify-center space-x-3">
+                  <Trash2 className="h-5 w-5 text-red-500 group-hover:scale-110 transition-transform duration-300" />
+                  <span className="font-medium text-red-600 dark:text-red-400">
+                    Delete All Data
+                  </span>
+                </div>
+              </button>
             </div>
-            
-            <div className="flex items-center justify-center space-x-4 p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl border border-blue-200/50 dark:border-blue-700/50">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
-                <Zap className="h-6 w-6 text-white" />
-              </div>
-              <div className="text-center">
-                <p className="font-semibold text-gray-900 dark:text-gray-100">
-                  Lightning Fast Performance
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Optimized for 60fps mobile experience
-                </p>
-              </div>
-              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center">
-                <CheckCircle className="h-6 w-6 text-white" />
-              </div>
-            </div>
-          </div>
-        </Card>
+          </Card>
+        </div>
       </motion.div>
 
       {/* Delete Confirmation Modal */}
@@ -529,13 +566,13 @@ const Settings = memo(() => {
         <div className="space-y-4">
           <div className="flex items-center space-x-3 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
             <AlertTriangle className="h-8 w-8 text-red-500 flex-shrink-0" />
-              <div>
+            <div>
               <p className="font-semibold text-red-900 dark:text-red-100">
                 This action cannot be undone!
-                </p>
-                <p className="text-sm text-red-700 dark:text-red-300">
+              </p>
+              <p className="text-sm text-red-700 dark:text-red-300">
                 All your expenses, budgets, and settings will be permanently deleted.
-                </p>
+              </p>
             </div>
           </div>
           
@@ -563,4 +600,4 @@ const Settings = memo(() => {
 
 Settings.displayName = 'Settings';
 
-export default Settings; 
+export default Settings;
