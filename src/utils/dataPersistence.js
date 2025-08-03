@@ -3,12 +3,8 @@
 
 import { getExpenses, getBudgets, getCategories, getSettings } from './storage';
 import { 
-  getAllDailyEntries, 
-  getAllWeeklyEntries, 
-  getAllMonthlyEntries,
-  getAllWellnessData,
-  getHabits,
-  getHabitCompletions 
+  getEntries,
+  DIARY_STORAGE_KEYS
 } from './diaryStorage';
 
 class DataPersistenceService {
@@ -50,12 +46,12 @@ class DataPersistenceService {
 
         // My Diary data
         diary: {
-          dailyEntries: getAllDailyEntries(),
-          weeklyEntries: getAllWeeklyEntries(),
-          monthlyEntries: getAllMonthlyEntries(),
-          wellnessData: getAllWellnessData(),
-          habits: getHabits(),
-          habitCompletions: getHabitCompletions(),
+          dailyEntries: getEntries('daily'),
+          weeklyEntries: getEntries('weekly'),
+          monthlyEntries: getEntries('monthly'),
+          wellnessData: JSON.parse(localStorage.getItem(DIARY_STORAGE_KEYS.WELLNESS_DATA) || '[]'),
+          habits: JSON.parse(localStorage.getItem('diary_habits') || '[]'),
+          habitCompletions: JSON.parse(localStorage.getItem('diary_habit_completions') || '{}'),
           settings: localStorage.getItem('diary_settings') ? JSON.parse(localStorage.getItem('diary_settings')) : {},
           reminders: localStorage.getItem('diary_reminders') ? JSON.parse(localStorage.getItem('diary_reminders')) : {}
         },
@@ -113,16 +109,16 @@ class DataPersistenceService {
       // Restore Diary data
       if (data.diary) {
         if (data.diary.dailyEntries) {
-          localStorage.setItem('diary_daily_entries', JSON.stringify(data.diary.dailyEntries));
+          localStorage.setItem(DIARY_STORAGE_KEYS.DAILY_ENTRIES, JSON.stringify(data.diary.dailyEntries));
         }
         if (data.diary.weeklyEntries) {
-          localStorage.setItem('diary_weekly_entries', JSON.stringify(data.diary.weeklyEntries));
+          localStorage.setItem(DIARY_STORAGE_KEYS.WEEKLY_ENTRIES, JSON.stringify(data.diary.weeklyEntries));
         }
         if (data.diary.monthlyEntries) {
-          localStorage.setItem('diary_monthly_entries', JSON.stringify(data.diary.monthlyEntries));
+          localStorage.setItem(DIARY_STORAGE_KEYS.MONTHLY_ENTRIES, JSON.stringify(data.diary.monthlyEntries));
         }
         if (data.diary.wellnessData) {
-          localStorage.setItem('diary_wellness_data', JSON.stringify(data.diary.wellnessData));
+          localStorage.setItem(DIARY_STORAGE_KEYS.WELLNESS_DATA, JSON.stringify(data.diary.wellnessData));
         }
         if (data.diary.habits) {
           localStorage.setItem('diary_habits', JSON.stringify(data.diary.habits));
