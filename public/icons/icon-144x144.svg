@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144" width="144" height="144">
-  <!-- Orange Background with rounded corners -->
+  <!-- Orange Background -->
   <rect width="144" height="144" rx="22" fill="#f97316"/>
   
-  <!-- Subtle gradient overlay for depth -->
+  <!-- Gradient overlay -->
   <defs>
     <radialGradient id="bgGradient" cx="50%" cy="30%" r="70%">
       <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:0.3"/>
@@ -17,19 +17,17 @@
     </filter>
   </defs>
   
-  <!-- Gradient overlay -->
   <rect width="144" height="144" rx="22" fill="url(#bgGradient)"/>
   
-  <!-- Main Lightning Bolt - Clean and Bold -->
-  <path d="M87 22 L53 79 L76 79 L68 128 L101 71 L79 71 L87 22 Z" 
+  <!-- Main Lightning Bolt - Enhanced -->
+  <path d="M82 15 L50 79 L67 79 L61 128 L93 64 L76 64 L82 15 Z" 
         fill="white" 
-        filter="url(#glow)" 
+        filter="url(#glow)"
         opacity="0.98"/>
   
-  <!-- Lightning glow effect -->
-  <path d="M87 22 L53 79 L76 79 L68 128 L101 71 L79 71 L87 22 Z" 
-        fill="none" 
-        stroke="white" 
-        stroke-width="0.8" 
-        opacity="0.6"/>
+  <!-- Energy particles -->
+  <circle cx="45" cy="34" r="1.5" fill="white" opacity="0.7"/>
+  <circle cx="98" cy="38" r="1.5" fill="white" opacity="0.7"/>
+  <circle cx="34" cy="98" r="1" fill="white" opacity="0.6"/>
+  <circle cx="112" cy="94" r="1" fill="white" opacity="0.6"/>
 </svg>

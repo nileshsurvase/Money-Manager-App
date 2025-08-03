@@ -199,42 +199,19 @@ const DiarySettings = memo(() => {
 
   return (
     <div className="spacing-lg">
-      {/* Stunning Header with Premium Design */}
-      <motion.div 
-        initial={{ opacity: 0, y: 30, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="relative"
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-green-500/5 to-teal-500/10 rounded-3xl blur-2xl animate-pulse"></div>
-        <div className="absolute inset-0 bg-gradient-to-tr from-emerald-400/5 to-green-400/5 rounded-3xl blur-xl"></div>
-        <Card variant="glass" className="relative overflow-hidden border-emerald-200/30 dark:border-emerald-700/30">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500"></div>
+      {/* Beautiful Header with Dashboard Theme */}
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-green-500/5 rounded-2xl sm:rounded-3xl blur-xl"></div>
+        <Card variant="glass" className="relative">
           <div className="flex flex-col space-y-4 sm:space-y-6">
-          <div className="space-y-3">
-              <motion.h1 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
-                className="text-gradient flex items-center gap-2 sm:gap-3 text-2xl sm:text-3xl font-bold"
-              >
-                <motion.div
-                  animate={{ rotate: [0, -5, 5, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-500 flex items-center justify-center shadow-lg"
-                >
-                  <PenTool className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-                </motion.div>
-                My Diary Settings
-            </motion.h1>
-              <motion.p 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-                className="text-gray-600 dark:text-gray-400 text-sm sm:text-base lg:text-lg"
-              >
-                📝 Customize your personal journaling experience with elegant controls
-            </motion.p>
+          <div className="space-y-2">
+              <h1 className="text-gradient flex items-center gap-2 sm:gap-3">
+                <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-emerald-500" />
+                Diary Settings
+            </h1>
+              <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base lg:text-lg">
+                Customize your journaling experience
+            </p>
           </div>
             
             {/* Quick Save Action */}
@@ -588,67 +565,52 @@ const DiarySettings = memo(() => {
         </div>
       </motion.div>
 
-      {/* Premium Data Export & Management */}
+      {/* Data Export & Management */}
           <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
-            className="group"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
           >
         <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-green-500/8 via-lime-500/6 to-emerald-500/8 rounded-2xl blur-2xl group-hover:blur-3xl transition-all duration-500"></div>
-          <div className="absolute inset-0 bg-gradient-to-tr from-green-400/3 to-lime-400/3 rounded-2xl"></div>
-          <Card variant="glass" className="relative border-green-200/30 dark:border-green-700/30 hover:border-green-300/50 dark:hover:border-green-600/50 transition-all duration-300">
+          <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-lime-500/5 rounded-2xl blur-xl"></div>
+          <Card variant="glass" className="relative">
             <div className="space-y-6">
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="flex items-center space-x-3"
-              >
-                <motion.div 
-                  whileHover={{ scale: 1.1, rotate: -5 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="w-12 h-12 rounded-2xl bg-gradient-to-br from-green-500 via-lime-500 to-emerald-500 flex items-center justify-center shadow-lg"
-                >
-                  <Database className="h-6 w-6 text-white" />
-                </motion.div>
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-500 to-lime-500 flex items-center justify-center">
+                  <Database className="h-5 w-5 text-white" />
+                </div>
                 <div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                    📊 Data Export & Management
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    Data Export & Management
               </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    🚀 Export, backup, and manage your personal diary data
+                    Export, backup, and manage your diary data
                   </p>
                 </div>
-            </motion.div>
+            </div>
 
               {/* Advanced Excel Exports */}
               <div className="space-y-4">
-                <motion.h4 
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.6 }}
-                  className="text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center gap-2 py-2 px-4 rounded-lg bg-gradient-to-r from-green-50 to-lime-50 dark:from-green-900/20 dark:to-lime-900/20 border border-green-200/50 dark:border-green-700/50"
-                >
-                  <motion.div
-                    animate={{ y: [0, -2, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                  >
-                    <Download className="h-4 w-4 text-green-600" />
-                  </motion.div>
-                  ✨ Advanced Excel Exports
-                </motion.h4>
+                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                  <Download className="h-4 w-4" />
+                  Advanced Excel Exports
+                </h4>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <button
+                  <motion.button
                     onClick={() => exportDailyJournalToCSV()}
-                    className="glass-panel p-4 rounded-xl hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-all duration-300 group"
+                    whileHover={{ scale: 1.03, y: -3 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="glass-panel p-4 rounded-xl hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-all duration-300 group border border-emerald-200/30 dark:border-emerald-700/30 shadow-lg hover:shadow-emerald-500/20"
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-emerald-500 to-green-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <motion.div 
+                        className="w-8 h-8 rounded-lg bg-gradient-to-r from-emerald-500 to-green-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
+                        whileHover={{ rotate: [0, -5, 5, 0] }}
+                        transition={{ duration: 0.4 }}
+                      >
                         <BookOpen className="h-4 w-4 text-white" />
-                      </div>
+                      </motion.div>
                       <div className="text-left">
                         <p className="font-medium text-gray-900 dark:text-gray-100">
                           Daily Journal
@@ -657,18 +619,30 @@ const DiarySettings = memo(() => {
                           All daily entries
                           </p>
                         </div>
-                      <ArrowUpRight className="h-4 w-4 text-gray-400 group-hover:text-emerald-500 transition-colors duration-300" />
+                      <motion.div
+                        initial={{ x: 0 }}
+                        whileHover={{ x: 3, scale: 1.1 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                      >
+                        <ArrowUpRight className="h-4 w-4 text-gray-400 group-hover:text-emerald-500 transition-colors duration-300" />
+                      </motion.div>
                       </div>
-                  </button>
+                  </motion.button>
 
-                  <button
+                  <motion.button
                     onClick={() => exportWeeklyJournalToCSV()}
-                    className="glass-panel p-4 rounded-xl hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-all duration-300 group"
+                    whileHover={{ scale: 1.03, y: -3 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="glass-panel p-4 rounded-xl hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-all duration-300 group border border-blue-200/30 dark:border-blue-700/30 shadow-lg hover:shadow-blue-500/20"
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <motion.div 
+                        className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
+                        whileHover={{ rotate: [0, 10, -10, 0] }}
+                        transition={{ duration: 0.4 }}
+                      >
                         <Calendar className="h-4 w-4 text-white" />
-                        </div>
+                        </motion.div>
                       <div className="text-left">
                         <p className="font-medium text-gray-900 dark:text-gray-100">
                           Weekly Journal
@@ -677,9 +651,15 @@ const DiarySettings = memo(() => {
                           Weekly reflections
                       </p>
                     </div>
-                      <ArrowUpRight className="h-4 w-4 text-gray-400 group-hover:text-blue-500 transition-colors duration-300" />
+                      <motion.div
+                        initial={{ x: 0 }}
+                        whileHover={{ x: 3, scale: 1.1 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                      >
+                        <ArrowUpRight className="h-4 w-4 text-gray-400 group-hover:text-blue-500 transition-colors duration-300" />
+                      </motion.div>
                   </div>
-                  </button>
+                  </motion.button>
 
                   <button
                     onClick={() => exportMonthlyJournalToCSV()}
