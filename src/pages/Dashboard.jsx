@@ -140,14 +140,16 @@ const Dashboard = memo(() => {
     } else if (timeFilter === 'week') {
       return getCurrentWeekExpenses(expenses);
     } else if (timeFilter === 'lastMonth') {
-      return filterExpensesByDateRange(expenses, ...getPreviousMonthRange());
+      const { start, end } = getPreviousMonthRange();
+      return filterExpensesByDateRange(expenses, start, end);
     }
     return expenses;
   }, [expenses, timeFilter]);
 
   // Get expenses for the selected month
   const selectedMonthExpenses = useMemo(() => {
-    return filterExpensesByDateRange(expenses, ...currentSelectedMonthRange);
+    const { start, end } = currentSelectedMonthRange;
+    return filterExpensesByDateRange(expenses, start, end);
   }, [expenses, currentSelectedMonthRange]);
 
   // Calculate totals
