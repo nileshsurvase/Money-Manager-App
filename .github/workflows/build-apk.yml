@@ -28,10 +28,15 @@ jobs:
         cache: 'npm'
         
     - name: Install dependencies
-      run: npm install
+      run: |
+        npm install
+        npm ls vite || echo "Vite not found in dependencies"
       
-    - name: Build web app
-      run: npm run build:mobile
+    - name: Build mobile app
+      run: |
+        chmod +x node_modules/.bin/vite || echo "Vite binary not found"
+        npm run build:mobile
+        ls -la dist/ || echo "Dist folder not created"
       
     - name: Sync Capacitor
       run: npx cap sync android
@@ -45,7 +50,7 @@ jobs:
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: clarityos-apk
+        name: money-manager-apk
         path: android/app/build/outputs/apk/debug/app-debug.apk
         retention-days: 30
         
