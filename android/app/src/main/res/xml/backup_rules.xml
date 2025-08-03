@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- Include all app data in backups -->
+    <include domain="sharedpref" path="."/>
+    <include domain="database" path="."/>
+    <include domain="file" path="."/>
+    
+    <!-- Exclude temporary files and caches -->
+    <exclude domain="file" path="cache"/>
+    <exclude domain="file" path="code_cache"/>
+    <exclude domain="file" path="no_backup"/>
+    
+    <!-- Include specific directories for user data -->
+    <include domain="file" path="clarityos_data"/>
+    <include domain="file" path="user_backups"/>
+    
+    <!-- Include WebView data which stores localStorage -->
+    <include domain="file" path="app_webview"/>
+    <include domain="file" path="app_textures"/>
+</full-backup-content>

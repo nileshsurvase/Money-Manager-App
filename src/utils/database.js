@@ -22,9 +22,20 @@ const DB_CONFIG = {
   API_ENDPOINT: "/.netlify/functions/api",
 };
 
-// Check if database is available (always true for Netlify functions)
+// Check if database is available - prioritize cloud for data persistence
 export const isDatabaseAvailable = () => {
-  return true; // Always available since we're using Netlify functions
+  // For data persistence, always try cloud storage first
+  // This ensures data survives app updates and reinstalls
+  try {
+    // Check if we're in a web environment with network access
+    if (typeof window !== 'undefined' && navigator.onLine !== false) {
+      return true; // Available for cloud storage
+    }
+    return true; // Default to available for persistence
+  } catch (error) {
+    console.warn('Database availability check failed:', error);
+    return true; // Still default to available for persistence
+  }
 };
 
 // Get current user

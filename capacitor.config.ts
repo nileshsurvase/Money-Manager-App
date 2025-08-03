@@ -6,7 +6,13 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   bundledWebRuntime: false,
   server: {
-    androidScheme: 'https'
+    androidScheme: 'https',
+    allowNavigation: [
+      '*.netlify.app',
+      '*.netlify.com',
+      'localhost',
+      '*.clarityos.com'
+    ]
   },
   plugins: {
     SplashScreen: {
@@ -23,7 +29,23 @@ const config: CapacitorConfig = {
     },
     App: {
       allowMixedContent: true
+    },
+    Filesystem: {
+      ioTimeout: 30000
+    },
+    LocalStorage: {
+      persist: true
     }
+  },
+  android: {
+    allowMixedContent: true,
+    captureInput: true,
+    webContentsDebuggingEnabled: false,
+    appendUserAgent: 'ClarityOS-Mobile',
+    overrideUserAgent: undefined,
+    backgroundColor: '#ff6b35',
+    loggingBehavior: 'none',
+    useLegacyBridge: false
   }
 };
 

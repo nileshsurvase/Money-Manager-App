@@ -8,10 +8,13 @@ import { Capacitor } from '@capacitor/core'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { SplashScreen } from '@capacitor/splash-screen'
 
-// Initialize mobile app
+// Data persistence import
+import { initializeDataPersistence } from './utils/dataPersistence'
+
+// Initialize mobile app and data persistence
 const initializeApp = async () => {
-  if (Capacitor.isNativePlatform()) {
-    try {
+  try {
+    if (Capacitor.isNativePlatform()) {
       // Set status bar style for mobile
       await StatusBar.setStyle({ style: Style.Dark })
       await StatusBar.setBackgroundColor({ color: '#ff6b35' })
@@ -20,9 +23,16 @@ const initializeApp = async () => {
       await SplashScreen.hide()
       
       console.log('📱 Mobile app initialized successfully!')
-    } catch (error) {
-      console.warn('Mobile initialization warning:', error)
     }
+
+    // Initialize data persistence for all platforms
+    console.log('🔄 Initializing data persistence...')
+    await initializeDataPersistence()
+    console.log('✅ Data persistence initialized - your data is protected!')
+    
+  } catch (error) {
+    console.error('❌ App initialization error:', error)
+    // Continue app startup even if data persistence fails
   }
 }
 

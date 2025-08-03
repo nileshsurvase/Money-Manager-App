@@ -34,6 +34,7 @@ import Button from '../components/Button';
 import Input from '../components/Input';
 import Select from '../components/Select';
 import Modal from '../components/Modal';
+import DataPersistenceStatus from '../components/DataPersistenceStatus';
 import { useTheme } from '../context/ThemeContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { useToast } from '../components/ToastProvider';
@@ -488,6 +489,15 @@ const Settings = memo(() => {
       </motion.div>
 
 
+
+      {/* Data Persistence Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <DataPersistenceStatus />
+      </motion.div>
 
       {/* Danger Zone */}
       <motion.div
