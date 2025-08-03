@@ -21,7 +21,11 @@
     "cap:build": "npm run cap:sync && npx cap build",
     "android:dev": "npm run cap:sync && npx cap run android",
     "android:build": "npm run cap:sync && npx cap build android",
-    "android:open": "npx cap open android"
+    "android:open": "npx cap open android",
+    "update": "git add . && git commit -m \"Quick update\" && git push",
+    "update:major": "npm version minor && git add . && git commit -m \"Major update\" && git push",
+    "update:patch": "npm version patch && git add . && git commit -m \"Bug fixes\" && git push",
+    "version:check": "echo Current version: $(node -p \"require('./package.json').version\")"
   },
   "dependencies": {
     "@capacitor/android": "^6.0.0",
