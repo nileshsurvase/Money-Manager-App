@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="80" fill="#1f2937"/>
+  
+  <!-- Orange accent circle -->
+  <circle cx="256" cy="256" r="200" fill="#f97316" opacity="0.1"/>
+  
+  <!-- Main logo elements -->
+  <!-- Money symbol -->
+  <circle cx="180" cy="180" r="60" fill="#f97316" opacity="0.8"/>
+  <text x="180" y="195" text-anchor="middle" fill="white" font-size="40" font-weight="bold">₹</text>
+  
+  <!-- Diary symbol -->
+  <rect x="290" y="140" width="80" height="80" rx="8" fill="#22c55e" opacity="0.8"/>
+  <rect x="305" y="160" width="50" height="4" fill="white" opacity="0.8"/>
+  <rect x="305" y="175" width="35" height="3" fill="white" opacity="0.6"/>
+  <rect x="305" y="187" width="45" height="3" fill="white" opacity="0.6"/>
+  <rect x="305" y="199" width="30" height="3" fill="white" opacity="0.6"/>
+  
+  <!-- Goals/Target symbol -->
+  <circle cx="180" cy="332" r="60" fill="#8b5cf6" opacity="0.8"/>
+  <circle cx="180" cy="332" r="35" fill="none" stroke="white" stroke-width="4"/>
+  <circle cx="180" cy="332" r="20" fill="none" stroke="white" stroke-width="3"/>
+  <circle cx="180" cy="332" r="8" fill="white"/>
+  
+  <!-- Freedom/Chart symbol -->
+  <rect x="290" y="272" width="80" height="80" rx="8" fill="#fbbf24" opacity="0.8"/>
+  <path d="M305 335 L320 315 L335 325 L350 305" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M305 340 L355 340" stroke="white" stroke-width="3"/>
+  <path d="M305 340 L305 290" stroke="white" stroke-width="3"/>
+  
+  <!-- Central connecting element -->
+  <circle cx="256" cy="256" r="25" fill="white" opacity="0.9"/>
+  <circle cx="256" cy="256" r="15" fill="#f97316"/>
+  
+  <!-- App name -->
+  <text x="256" y="450" text-anchor="middle" fill="white" font-size="32" font-weight="bold" opacity="0.9">ClarityOS</text>
+</svg> 

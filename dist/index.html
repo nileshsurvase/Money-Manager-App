@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#f97316" />
+    <meta name="background-color" content="#1f2937" />
+    <meta name="display" content="standalone" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="ClarityOS" />
+    <meta name="msapplication-TileColor" content="#f97316" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Complete life management platform with Money Manager, Diary, CoreOS, and FreedomOS" />
+    <meta name="keywords" content="expense tracker, diary, goals, financial freedom, productivity, life management" />
+    <meta name="author" content="ClarityOS Team" />
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="ClarityOS - Life Operating System" />
+    <meta property="og:description" content="Complete life management platform with Money Manager, Diary, CoreOS, and FreedomOS" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://clarityos.onexdigitalhq.com" />
+    <meta property="og:image" content="/icons/icon.svg" />
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ClarityOS - Life Operating System" />
+    <meta name="twitter:description" content="Complete life management platform with Money Manager, Diary, CoreOS, and FreedomOS" />
+    <meta name="twitter:image" content="/icons/icon.svg" />
+    
+    <!-- Comprehensive Favicon Support -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.svg">
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-144x144.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.svg">
+    <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-144x144.svg">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Preload Critical Resources - Only for production -->
+    <!-- <link rel="preload" href="/src/index.css" as="style">
+    <link rel="preload" href="/src/main.jsx" as="script" crossorigin> -->
+    
+    <!-- DNS Prefetch for External Resources -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//accounts.google.com">
+    
+    <title>ClarityOS - Life Operating System</title>
+    <script type="module" crossorigin src="/assets/index-DCndX48W.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/vendor-Csw2ODfV.js">
+    <link rel="modulepreload" crossorigin href="/assets/router-x15TIwzH.js">
+    <link rel="modulepreload" crossorigin href="/assets/ui-CeF3mqTb.js">
+    <link rel="modulepreload" crossorigin href="/assets/icons-Dv2osvF6.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-DW-2zAUg.css">
+  </head>
+  <body>
+    <div id="root"></div>
+    
+    <!-- Service Worker Registration - Only in Production -->
+    <script>
+      // Only register service worker in production
+      if ('serviceWorker' in navigator && window.location.hostname !== 'localhost' && !window.location.hostname.includes('127.0.0.1')) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registered: ', registration);
+              
+              // Check for updates
+              registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    // New content available, show update prompt
+                    if (confirm('New version available! Would you like to update?')) {
+                      window.location.reload();
+                    }
+                  }
+                });
+              });
+            })
+            .catch((registrationError) => {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      } else {
+        console.log('Service Worker disabled in development mode');
+      }
+    </script>
+    
+    <!-- Install Prompt -->
+    <script>
+      let deferredPrompt;
+      
+      window.addEventListener('beforeinstallprompt', (e) => {
+        // Prevent Chrome 67 and earlier from automatically showing the prompt
+        e.preventDefault();
+        // Stash the event so it can be triggered later
+        deferredPrompt = e;
+        
+        // Show install button or banner
+        const installButton = document.createElement('button');
+        installButton.textContent = 'Install ClarityOS';
+        installButton.style.cssText = `
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
+          z-index: 1000;
+          background: #f97316;
+          color: white;
+          border: none;
+          padding: 12px 20px;
+          border-radius: 8px;
+          font-weight: 600;
+          cursor: pointer;
+          box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+        `;
+        
+        installButton.addEventListener('click', async () => {
+          // Show the prompt
+          deferredPrompt.prompt();
+          // Wait for the user to respond to the prompt
+          const { outcome } = await deferredPrompt.userChoice;
+          console.log(`User response to the install prompt: ${outcome}`);
+          // Clear the deferredPrompt
+          deferredPrompt = null;
+          // Remove install button
+          installButton.remove();
+        });
+        
+        document.body.appendChild(installButton);
+        
+        // Auto-hide after 10 seconds
+        setTimeout(() => {
+          if (installButton.parentNode) {
+            installButton.remove();
+          }
+        }, 10000);
+      });
+      
+      window.addEventListener('appinstalled', () => {
+        console.log('ClarityOS was installed');
+        // Hide install promotion
+        deferredPrompt = null;
+      });
+    </script>
+    
+  </body>
+</html>
