@@ -30,20 +30,32 @@ export const useDebounce = (value, delay) => {
   return debouncedValue;
 };
 
-// Optimized animation configuration for smooth 60fps
+// Smooth animations with spring physics
 export const smoothAnimations = {
-  transition: {
+  // Spring configuration for smooth animations
+  spring: {
     type: "spring",
-    stiffness: 300,
-    damping: 30,
-    mass: 0.8
+    stiffness: 400,
+    damping: 25,
+    mass: 0.5
   },
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 }
+  
+  // Smooth ease configuration
+  ease: {
+    duration: 0.3,
+    ease: [0.4, 0.0, 0.2, 1]
+  },
+  
+  // Quick snap for interactions
+  snap: {
+    type: "spring",
+    stiffness: 500,
+    damping: 30,
+    mass: 0.3
+  }
 };
 
-// Ultra smooth card animation
+// Common card animation variants
 export const cardAnimation = {
   initial: { opacity: 0, scale: 0.96, y: 20 },
   animate: { 
@@ -68,350 +80,127 @@ export const cardAnimation = {
   }
 };
 
-// Staggered children animation for lists
+// Stagger animation for lists
 export const staggerContainer = {
   animate: {
     transition: {
-      staggerChildren: 0.05,
+      staggerChildren: 0.1,
       delayChildren: 0.1
     }
   }
 };
 
-// Smooth hover animation
+// Hover animations
 export const hoverAnimation = {
   whileHover: { 
     scale: 1.02,
-    y: -2,
-    transition: {
-      type: "spring",
-      stiffness: 400,
-      damping: 25
+    transition: { 
+      type: "spring", 
+      stiffness: 400, 
+      damping: 25 
     }
   },
   whileTap: { 
     scale: 0.98,
-    transition: {
-      type: "spring",
-      stiffness: 400,
-      damping: 25
+    transition: { 
+      type: "spring", 
+      stiffness: 400, 
+      damping: 25 
     }
   }
 };
 
-// Memory optimization - memoized calculations
-export const useMemoizedCalculations = (expenses, budgets) => {
-  return useMemo(() => {
-    const calculations = {
-      totalExpenses: expenses.reduce((sum, exp) => sum + Number(exp.amount), 0),
-      expensesByCategory: expenses.reduce((acc, exp) => {
-        acc[exp.categoryId] = (acc[exp.categoryId] || 0) + Number(exp.amount);
-        return acc;
-      }, {}),
-      budgetProgress: budgets.map(budget => {
-        const spent = expenses
-          .filter(exp => exp.categoryId === budget.categoryId)
-          .reduce((sum, exp) => sum + Number(exp.amount), 0);
-        return {
-          ...budget,
-          spent,
-          percentage: budget.amount > 0 ? (spent / budget.amount) * 100 : 0,
-          remaining: budget.amount - spent
-        };
-      })
-    };
-    return calculations;
-  }, [expenses, budgets]);
+// Hardware acceleration styles
+export const enableHardwareAcceleration = {
+  transform: 'translate3d(0, 0, 0)',
+  backfaceVisibility: 'hidden',
+  perspective: 1000,
+  willChange: 'transform, opacity'
 };
 
-// Intersection Observer for lazy loading and animations
-export const useIntersectionObserver = (options = {}) => {
-  const elementRef = useRef();
-  const [isIntersecting, setIsIntersecting] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      setIsIntersecting(entry.isIntersecting);
-    }, {
-      threshold: 0.1,
-      rootMargin: '50px',
-      ...options
-    });
-
-    if (elementRef.current) {
-      observer.observe(elementRef.current);
+// Optimized scroll hook
+export const useOptimizedScroll = (callback, dependencies = []) => {
+  const ticking = useRef(false);
+  
+  const optimizedCallback = useCallback(() => {
+    if (!ticking.current) {
+      requestAnimationFrame(() => {
+        callback();
+        ticking.current = false;
+      });
+      ticking.current = true;
     }
+  }, dependencies);
+  
+  useEffect(() => {
+    window.addEventListener('scroll', optimizedCallback, { passive: true });
+    return () => window.removeEventListener('scroll', optimizedCallback);
+  }, [optimizedCallback]);
+};
 
+// Resize observer hook for performance
+export const useOptimizedResize = (callback, dependencies = []) => {
+  const resizeObserver = useRef(null);
+  
+  const optimizedCallback = useCallback(
+    useMemo(() => {
+      let timeout;
+      return () => {
+        clearTimeout(timeout);
+        timeout = setTimeout(callback, 100);
+      };
+    }, dependencies),
+    dependencies
+  );
+  
+  useEffect(() => {
+    window.addEventListener('resize', optimizedCallback, { passive: true });
     return () => {
-      if (elementRef.current) {
-        observer.unobserve(elementRef.current);
+      window.removeEventListener('resize', optimizedCallback);
+      if (resizeObserver.current) {
+        resizeObserver.current.disconnect();
       }
     };
-  }, []);
-
-  return [elementRef, isIntersecting];
+  }, [optimizedCallback]);
 };
 
-// Virtual scrolling for large lists
-export const useVirtualList = (items, itemHeight = 80, containerHeight = 400) => {
-  const [scrollTop, setScrollTop] = useState(0);
-  
-  const visibleItems = useMemo(() => {
-    const startIndex = Math.floor(scrollTop / itemHeight);
-    const endIndex = Math.min(
-      startIndex + Math.ceil(containerHeight / itemHeight) + 1,
-      items.length
-    );
+// Memoized component wrapper
+export const withOptimization = (Component) => {
+  return React.memo(Component, (prevProps, nextProps) => {
+    // Custom comparison for better performance
+    const prevKeys = Object.keys(prevProps);
+    const nextKeys = Object.keys(nextProps);
     
-    return items.slice(startIndex, endIndex).map((item, index) => ({
-      ...item,
-      index: startIndex + index,
-      top: (startIndex + index) * itemHeight
-    }));
-  }, [items, scrollTop, itemHeight, containerHeight]);
-
-  const totalHeight = items.length * itemHeight;
-
-  return { visibleItems, totalHeight, setScrollTop };
+    if (prevKeys.length !== nextKeys.length) {
+      return false;
+    }
+    
+    return prevKeys.every(key => {
+      if (typeof prevProps[key] === 'function' && typeof nextProps[key] === 'function') {
+        return prevProps[key].toString() === nextProps[key].toString();
+      }
+      return prevProps[key] === nextProps[key];
+    });
+  });
 };
 
-// RAF-based smooth state updates
-export const useSmoothState = (initialValue) => {
+// Smooth state transitions
+export const useSmoothState = (initialValue, transitionDuration = 300) => {
   const [state, setState] = useState(initialValue);
-  const rafRef = useRef();
-
-  const setSmoothState = useCallback((newValue) => {
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-    }
-    
-    rafRef.current = requestAnimationFrame(() => {
-      setState(newValue);
-    });
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-      }
-    };
-  }, []);
-
-  return [state, setSmoothState];
-};
-
-// Optimized event handlers to prevent excessive re-renders
-export const useOptimizedEventHandlers = () => {
-  const handlers = useRef({});
-
-  const createHandler = useCallback((fn) => {
-    if (!handlers.current[fn.toString()]) {
-      handlers.current[fn.toString()] = (...args) => fn(...args);
-    }
-    return handlers.current[fn.toString()];
-  }, []);
-
-  return createHandler;
-};
-import { useCallback, useMemo, useRef, useEffect, useState } from 'react';
-
-// Optimized throttle for smooth scrolling and animations
-export const useThrottle = (callback, delay) => {
-  const lastRun = useRef(Date.now());
+  const [transitioning, setTransitioning] = useState(false);
   
-  return useCallback((...args) => {
-    if (Date.now() - lastRun.current >= delay) {
-      callback(...args);
-      lastRun.current = Date.now();
-    }
-  }, [callback, delay]);
-};
-
-// Debounce for search and input optimization
-export const useDebounce = (value, delay) => {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-};
-
-// Optimized animation configuration for smooth 60fps
-export const smoothAnimations = {
-  transition: {
-    type: "spring",
-    stiffness: 300,
-    damping: 30,
-    mass: 0.8
-  },
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 }
-};
-
-// Ultra smooth card animation
-export const cardAnimation = {
-  initial: { opacity: 0, scale: 0.96, y: 20 },
-  animate: { 
-    opacity: 1, 
-    scale: 1, 
-    y: 0,
-    transition: {
-      type: "spring",
-      stiffness: 400,
-      damping: 25,
-      mass: 0.5
-    }
-  },
-  exit: { 
-    opacity: 0, 
-    scale: 0.96, 
-    y: -10,
-    transition: {
-      duration: 0.2,
-      ease: "easeInOut"
-    }
-  }
-};
-
-// Staggered children animation for lists
-export const staggerContainer = {
-  animate: {
-    transition: {
-      staggerChildren: 0.05,
-      delayChildren: 0.1
-    }
-  }
-};
-
-// Smooth hover animation
-export const hoverAnimation = {
-  whileHover: { 
-    scale: 1.02,
-    y: -2,
-    transition: {
-      type: "spring",
-      stiffness: 400,
-      damping: 25
-    }
-  },
-  whileTap: { 
-    scale: 0.98,
-    transition: {
-      type: "spring",
-      stiffness: 400,
-      damping: 25
-    }
-  }
-};
-
-// Memory optimization - memoized calculations
-export const useMemoizedCalculations = (expenses, budgets) => {
-  return useMemo(() => {
-    const calculations = {
-      totalExpenses: expenses.reduce((sum, exp) => sum + Number(exp.amount), 0),
-      expensesByCategory: expenses.reduce((acc, exp) => {
-        acc[exp.categoryId] = (acc[exp.categoryId] || 0) + Number(exp.amount);
-        return acc;
-      }, {}),
-      budgetProgress: budgets.map(budget => {
-        const spent = expenses
-          .filter(exp => exp.categoryId === budget.categoryId)
-          .reduce((sum, exp) => sum + Number(exp.amount), 0);
-        return {
-          ...budget,
-          spent,
-          percentage: budget.amount > 0 ? (spent / budget.amount) * 100 : 0,
-          remaining: budget.amount - spent
-        };
-      })
-    };
-    return calculations;
-  }, [expenses, budgets]);
-};
-
-// Intersection Observer for lazy loading and animations
-export const useIntersectionObserver = (options = {}) => {
-  const elementRef = useRef();
-  const [isIntersecting, setIsIntersecting] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      setIsIntersecting(entry.isIntersecting);
-    }, {
-      threshold: 0.1,
-      rootMargin: '50px',
-      ...options
-    });
-
-    if (elementRef.current) {
-      observer.observe(elementRef.current);
-    }
-
-    return () => {
-      if (elementRef.current) {
-        observer.unobserve(elementRef.current);
-      }
-    };
-  }, []);
-
-  return [elementRef, isIntersecting];
-};
-
-// Virtual scrolling for large lists
-export const useVirtualList = (items, itemHeight = 80, containerHeight = 400) => {
-  const [scrollTop, setScrollTop] = useState(0);
-  
-  const visibleItems = useMemo(() => {
-    const startIndex = Math.floor(scrollTop / itemHeight);
-    const endIndex = Math.min(
-      startIndex + Math.ceil(containerHeight / itemHeight) + 1,
-      items.length
-    );
-    
-    return items.slice(startIndex, endIndex).map((item, index) => ({
-      ...item,
-      index: startIndex + index,
-      top: (startIndex + index) * itemHeight
-    }));
-  }, [items, scrollTop, itemHeight, containerHeight]);
-
-  const totalHeight = items.length * itemHeight;
-
-  return { visibleItems, totalHeight, setScrollTop };
-};
-
-// RAF-based smooth state updates
-export const useSmoothState = (initialValue) => {
-  const [state, setState] = useState(initialValue);
-  const rafRef = useRef();
-
   const setSmoothState = useCallback((newValue) => {
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-    }
+    setTransitioning(true);
     
-    rafRef.current = requestAnimationFrame(() => {
+    // Use requestAnimationFrame for smooth transitions
+    requestAnimationFrame(() => {
       setState(newValue);
+      
+      setTimeout(() => {
+        setTransitioning(false);
+      }, transitionDuration);
     });
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-      }
-    };
-  }, []);
+  }, [transitionDuration]);
 
   return [state, setSmoothState];
 };

@@ -692,10 +692,3 @@ const Dashboard = memo(() => {
 Dashboard.displayName = 'Dashboard';
 
 export default Dashboard; 
-    </div>
-  );
-});
-
-Dashboard.displayName = 'Dashboard';
-
-export default Dashboard; 
