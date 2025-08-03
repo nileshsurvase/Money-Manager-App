@@ -11,7 +11,9 @@ import {
   IndianRupee,
   Sparkles,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Target,
+  BarChart3
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line } from 'recharts';
 import Card from '../components/Card';
