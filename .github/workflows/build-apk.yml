@@ -30,6 +30,7 @@ jobs:
     - name: Install dependencies
       run: |
         npm install
+        npm ls @capacitor/cli || echo "Capacitor CLI not found"
         npm ls vite || echo "Vite not found in dependencies"
       
     - name: Build mobile app
@@ -39,7 +40,11 @@ jobs:
         ls -la dist/ || echo "Dist folder not created"
       
     - name: Sync Capacitor
-      run: npx cap sync android
+      run: |
+        chmod +x node_modules/.bin/cap || echo "Cap binary not found"
+        npx cap info || echo "Capacitor info check"
+        npx cap sync android
+        ls -la android/ || echo "Android folder check"
       
     - name: Build Android APK
       run: |
