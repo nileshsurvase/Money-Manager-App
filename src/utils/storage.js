@@ -408,3 +408,10 @@ export const generateSampleMoneyManagerFile = () => {
 
   return JSON.stringify(sampleData, null, 2);
 }; 
+    },
+    exportDate: new Date().toISOString(),
+    version: '1.1'
+  };
+
+  return JSON.stringify(sampleData, null, 2);
+}; 

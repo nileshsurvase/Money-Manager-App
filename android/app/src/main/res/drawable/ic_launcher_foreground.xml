@@ -80,3 +80,84 @@
         android:fillAlpha="0.5"/>
         
 </vector>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Main Lightning Bolt -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M58.8,16.8 L42,50.4 L54.6,50.4 L50.4,90.72 L67.2,57.12 L54.6,57.12 L58.8,16.8 Z"
+        android:fillAlpha="0.95"/>
+    
+    <!-- Secondary smaller lightning accents -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M31.5,37.8 L25.2,46.2 L29.4,46.2 L27.3,54.6 L33.6,46.2 L29.4,46.2 L31.5,37.8 Z"
+        android:fillAlpha="0.4"/>
+    
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M79.8,37.8 L73.5,46.2 L77.7,46.2 L75.6,54.6 L81.9,46.2 L77.7,46.2 L79.8,37.8 Z"
+        android:fillAlpha="0.4"/>
+    
+    <!-- Energy particles/dots -->
+    <circle
+        android:fillColor="#FFFFFF"
+        android:cx="37.8"
+        android:cy="31.5"
+        android:r="0.84"
+        android:fillAlpha="0.6"/>
+    
+    <circle
+        android:fillColor="#FFFFFF"
+        android:cx="42"
+        android:cy="27.3"
+        android:r="0.63"
+        android:fillAlpha="0.5"/>
+    
+    <circle
+        android:fillColor="#FFFFFF"
+        android:cx="71.4"
+        android:cy="29.4"
+        android:r="0.84"
+        android:fillAlpha="0.6"/>
+    
+    <circle
+        android:fillColor="#FFFFFF"
+        android:cx="75.6"
+        android:cy="33.6"
+        android:r="0.63"
+        android:fillAlpha="0.5"/>
+    
+    <circle
+        android:fillColor="#FFFFFF"
+        android:cx="25.2"
+        android:cy="67.2"
+        android:r="0.63"
+        android:fillAlpha="0.4"/>
+    
+    <circle
+        android:fillColor="#FFFFFF"
+        android:cx="29.4"
+        android:cy="71.4"
+        android:r="0.42"
+        android:fillAlpha="0.5"/>
+    
+    <circle
+        android:fillColor="#FFFFFF"
+        android:cx="79.8"
+        android:cy="65.1"
+        android:r="0.63"
+        android:fillAlpha="0.4"/>
+    
+    <circle
+        android:fillColor="#FFFFFF"
+        android:cx="84"
+        android:cy="69.3"
+        android:r="0.42"
+        android:fillAlpha="0.5"/>
+        
+</vector>

@@ -56,3 +56,33 @@ createRoot(document.getElementById('root')).render(
     <App />
   </StrictMode>,
 )
+
+}
+
+// Initialize performance monitoring
+if (import.meta.env.PROD && 'performance' in window) {
+  // Basic performance monitoring without external dependencies
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const perfData = performance.getEntriesByType('navigation')[0];
+      if (perfData) {
+        console.log('🚀 Performance Metrics:', {
+          'Page Load Time': `${Math.round(perfData.loadEventEnd - perfData.fetchStart)}ms`,
+          'DOM Content Loaded': `${Math.round(perfData.domContentLoadedEventEnd - perfData.fetchStart)}ms`,
+          'First Paint': performance.getEntriesByType('paint').find(entry => entry.name === 'first-paint')?.startTime || 'N/A',
+          'Memory Usage': performance.memory ? `${Math.round(performance.memory.usedJSHeapSize / 1048576)}MB` : 'N/A',
+          'Platform': Capacitor.getPlatform()
+        });
+      }
+    }, 0);
+  });
+}
+
+// Initialize mobile features
+initializeApp()
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)

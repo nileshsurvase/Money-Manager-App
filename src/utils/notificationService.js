@@ -442,3 +442,103 @@ class NotificationService {
 const notificationService = new NotificationService();
 
 export default notificationService; 
+      return '/diary/daily';
+    } else if (tag?.includes('weekly')) {
+      return '/diary/weekly';
+    } else if (tag?.includes('monthly')) {
+      return '/diary/monthly';
+    } else {
+      return '/diary';
+    }
+  }
+
+  checkDueJournals() {
+    const dueToday = getTodaysDue();
+    
+    if (dueToday.length > 0) {
+      // Show a summary notification for all due journals
+      const types = dueToday.map(item => item.type).join(', ');
+      this.showNotification(
+        'Journals Due Today', 
+        `You have ${dueToday.length} journal entries due today: ${types}`,
+        {
+          icon: '📝',
+          tag: 'due-summary'
+        }
+      );
+    }
+  }
+
+  // Method to show motivational notifications
+  showMotivationalNotification() {
+    const motivationalMessages = [
+      "You're doing great with your journaling journey! 🌟",
+      "Self-reflection is a superpower. Keep it up! 💪",
+      "Every entry is a step towards better self-awareness 🧠",
+      "Your thoughts matter. Write them down! ✍️",
+      "Consistency builds habits. You've got this! 🔥"
+    ];
+    
+    const randomMessage = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
+    
+    this.showNotification('Journaling Motivation', randomMessage, {
+      icon: '🌈',
+      tag: 'motivation',
+      silent: true
+    });
+  }
+
+  // Test notification method
+  async testNotification() {
+    await this.showNotification('🧪 Test Notification', 'This is a test notification from ClarityOS Diary! If you can see this, notifications are working perfectly. 🎉', {
+      icon: '🧪',
+      tag: 'test'
+    });
+  }
+
+  getReminders() {
+    return this.reminders;
+  }
+
+  getReminderStatus() {
+    // Update permission status from browser
+    if ('Notification' in window) {
+      this.permission = Notification.permission;
+    }
+    
+    return {
+      permission: this.permission,
+      activeReminders: Array.from(this.intervals.keys()),
+      totalReminders: Object.values(this.reminders).filter(r => r.enabled).length,
+      supported: 'Notification' in window
+    };
+  }
+
+  // Method to refresh the service after permission changes
+  async refresh() {
+    try {
+      if (this.isCapacitor && this.LocalNotifications) {
+        // Check mobile permissions
+        const permResult = await this.LocalNotifications.checkPermissions();
+        this.permission = permResult.display === 'granted' ? 'granted' : 'denied';
+      } else if ('Notification' in window) {
+        this.permission = Notification.permission;
+      }
+      
+      // Clear existing reminders
+      this.clearAllReminders();
+      
+      // Setup reminders if permission is granted
+      if (this.permission === 'granted') {
+        this.setupAllReminders();
+      }
+    } catch (error) {
+      console.error('Error refreshing notification service:', error);
+    }
+  }
+}
+
+// Create singleton instance
+const notificationService = new NotificationService();
+
+export default notificationService; 

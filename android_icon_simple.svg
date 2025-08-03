@@ -27,3 +27,31 @@
   <circle cx="380" cy="330" r="4" fill="white" opacity="0.4"/>
   <circle cx="400" cy="350" r="3" fill="white" opacity="0.5"/>
 </svg>
+  <!-- Orange Background -->
+  <rect width="512" height="512" rx="80" fill="#f97316"/>
+  
+  <!-- Main Lightning Bolt -->
+  <path d="M280 100 L200 260 L260 260 L240 400 L320 240 L260 240 L280 100 Z" 
+        fill="white" 
+        opacity="0.95"/>
+  
+  <!-- Secondary smaller lightning accents -->
+  <path d="M150 200 L120 240 L140 240 L130 280 L160 240 L140 240 L150 200 Z" 
+        fill="white" 
+        opacity="0.4"/>
+  
+  <path d="M380 200 L350 240 L370 240 L360 280 L390 240 L370 240 L380 200 Z" 
+        fill="white" 
+        opacity="0.4"/>
+  
+  <!-- Energy particles/dots -->
+  <circle cx="180" cy="170" r="6" fill="white" opacity="0.6"/>
+  <circle cx="200" cy="150" r="4" fill="white" opacity="0.5"/>
+  <circle cx="340" cy="160" r="6" fill="white" opacity="0.6"/>
+  <circle cx="360" cy="180" r="4" fill="white" opacity="0.5"/>
+  
+  <circle cx="120" cy="340" r="4" fill="white" opacity="0.4"/>
+  <circle cx="140" cy="360" r="3" fill="white" opacity="0.5"/>
+  <circle cx="380" cy="330" r="4" fill="white" opacity="0.4"/>
+  <circle cx="400" cy="350" r="3" fill="white" opacity="0.5"/>
+</svg>
