@@ -564,17 +564,37 @@ const Layout = memo(({ children }) => {
             <Menu className="h-6 w-6" />
           </motion.button>
 
-          {/* ClarityOS Logo and Brand - Always Visible */}
+          {/* App Logo and Brand - Shows Current App */}
           <div className="flex items-center space-x-3 flex-1 lg:flex-none min-w-0">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg bg-gradient-to-br from-orange-500 to-orange-600 flex-shrink-0">
-              <span className="text-white text-xl">⚡</span>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${
+              currentApp === 'my-diary' 
+                ? 'bg-gradient-to-br from-emerald-500 to-green-600'
+                : currentApp === 'coreos'
+                ? 'bg-gradient-to-br from-orange-500 to-orange-600'
+                : currentApp === 'freedomos'
+                ? 'bg-gradient-to-br from-blue-500 to-blue-600'
+                : 'bg-gradient-to-br from-orange-500 to-red-600'
+            } flex-shrink-0`}>
+              <span className="text-white text-xl">
+                {currentApp === 'my-diary' ? '📖' : 
+                 currentApp === 'coreos' ? '⚡' :
+                 currentApp === 'freedomos' ? '🏆' : '💰'}
+              </span>
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-orange-600 to-red-600 dark:from-orange-400 dark:to-red-400 truncate">
-                ClarityOS
+              <h1 className={`text-lg font-bold bg-clip-text text-transparent truncate ${
+                currentApp === 'my-diary'
+                  ? 'bg-gradient-to-r from-emerald-600 to-green-600 dark:from-emerald-400 dark:to-green-400'
+                  : currentApp === 'coreos'
+                  ? 'bg-gradient-to-r from-orange-600 to-red-600 dark:from-orange-400 dark:to-red-400'
+                  : currentApp === 'freedomos'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400'
+                  : 'bg-gradient-to-r from-orange-600 to-red-600 dark:from-orange-400 dark:to-red-400'
+              }`}>
+                {currentAppInfo.name}
               </h1>
               <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
-                Life Operating System • {currentAppInfo.name}
+                Powered by ClarityOS
               </p>
             </div>
           </div>
