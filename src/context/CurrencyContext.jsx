@@ -11,17 +11,6 @@ export const useCurrency = () => {
   return context;
 };
 
-// Available currencies with their symbols and names
-const AVAILABLE_CURRENCIES = [
-  { code: 'INR', symbol: '₹', name: 'Indian Rupee' },
-  { code: 'USD', symbol: '$', name: 'US Dollar' },
-  { code: 'EUR', symbol: '€', name: 'Euro' },
-  { code: 'GBP', symbol: '£', name: 'British Pound' },
-  { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
-  { code: 'CAD', symbol: '$', name: 'Canadian Dollar' },
-  { code: 'AUD', symbol: '$', name: 'Australian Dollar' }
-];
-
 export const CurrencyProvider = ({ children }) => {
   const [currency, setCurrency] = useState('INR');
 
@@ -44,8 +33,8 @@ export const CurrencyProvider = ({ children }) => {
     try {
       // Save to storage
       const settings = getSettings();
-      const updatedSettings = { ...settings, currency: newCurrency };
-      saveSettings(updatedSettings);
+      settings.currency = newCurrency;
+      saveSettings(settings);
     } catch (error) {
       console.warn('Error saving currency settings:', error);
     }
@@ -56,12 +45,12 @@ export const CurrencyProvider = ({ children }) => {
     try {
       const currencySymbols = {
         'INR': '₹',
-        'USD': '$',
-        'EUR': '€',
-        'GBP': '£',
-        'JPY': '¥',
-        'CAD': '$',
-        'AUD': '$'
+        'USD': '₹',
+        'EUR': '₹',
+        'GBP': '₹',
+        'JPY': '₹',
+        'CAD': '₹',
+        'AUD': '₹'
       };
 
       const symbol = currencySymbols[currency] || '$';
@@ -136,12 +125,10 @@ export const CurrencyProvider = ({ children }) => {
 
   const value = React.useMemo(() => ({
     currency,
-    setCurrency: updateCurrency, // Alias for backward compatibility
     updateCurrency,
     formatCurrency,
     getCurrencySymbol,
-    formatAbbreviatedAmount,
-    currencies: AVAILABLE_CURRENCIES // Export available currencies
+    formatAbbreviatedAmount
   }), [currency, updateCurrency, formatCurrency, getCurrencySymbol, formatAbbreviatedAmount]);
 
   return (

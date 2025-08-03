@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.nilesh.moneymanager',
-  appName: 'Money Manager',
+  appId: 'com.nilesh.clarityos',
+  appName: 'ClarityOS',
   webDir: 'dist',
   bundledWebRuntime: false,
   server: {
@@ -23,14 +23,6 @@ const config: CapacitorConfig = {
     },
     App: {
       allowMixedContent: true
-    },
-    LocalNotifications: {
-      smallIcon: "ic_stat_icon_config_sample",
-      iconColor: "#ff6b35",
-      sound: "beep.wav"
-    },
-    PushNotifications: {
-      presentationOptions: ["badge", "sound", "alert"]
     }
   }
 };

@@ -51,7 +51,6 @@ import {
   exportBudgetsToCSV,
   generateSampleMoneyManagerFile
 } from '../utils/storage';
-import { createMoneyManagerExcelReport } from '../utils/enhancedExcelExport';
 
 const Settings = memo(() => {
   const { isDark, toggleTheme } = useTheme();
@@ -141,7 +140,7 @@ const Settings = memo(() => {
         
         toast.success?.('Data imported successfully!');
         setTimeout(() => window.location.reload(), 1000);
-      } catch (error) {
+    } catch (error) {
         console.error('Import error:', error);
         toast.error?.('Failed to import data');
       } finally {
@@ -155,10 +154,10 @@ const Settings = memo(() => {
 
   const deleteAllData = useCallback(async () => {
     try {
-      Object.values(STORAGE_KEYS).forEach(key => {
-        localStorage.removeItem(key);
-      });
-      
+    Object.values(STORAGE_KEYS).forEach(key => {
+      localStorage.removeItem(key);
+    });
+    
       toast.success?.('All data deleted successfully!');
       setShowDeleteModal(false);
       setTimeout(() => window.location.reload(), 1000);
@@ -179,17 +178,6 @@ const Settings = memo(() => {
     }
   }, [toast]);
 
-  const exportComprehensiveReport = useCallback(async () => {
-    try {
-      toast.success?.('🚀 Generating comprehensive Excel report with charts...');
-      await createMoneyManagerExcelReport();
-      toast.success?.('📊 Beautiful Excel report with interactive charts downloaded successfully!');
-    } catch (error) {
-      console.error('Enhanced export error:', error);
-      toast.error?.('Failed to generate comprehensive report');
-    }
-  }, [toast]);
-
   return (
     <div className="spacing-lg">
       {/* Beautiful Header with Dashboard Theme */}
@@ -197,11 +185,11 @@ const Settings = memo(() => {
         <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-red-500/5 rounded-2xl sm:rounded-3xl blur-xl"></div>
         <Card variant="glass" className="relative">
           <div className="flex flex-col space-y-4 sm:space-y-6">
-            <div className="space-y-2">
+          <div className="space-y-2">
               <h1 className="text-gradient flex items-center gap-2 sm:gap-3">
                 <SettingsIcon className="h-6 w-6 sm:h-8 sm:w-8 text-orange-500" />
                 Settings & Preferences
-              </h1>
+            </h1>
               <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base lg:text-lg">
                 Customize your ClarityOS experience
               </p>
@@ -234,13 +222,13 @@ const Settings = memo(() => {
           </div>
         </Card>
       </div>
-
+        
       {/* Appearance & Theme */}
-      <motion.div
+          <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
+            transition={{ delay: 0.1 }}
+          >
         <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-indigo-500/5 rounded-2xl blur-xl"></div>
           <Card variant="glass" className="relative">
@@ -257,8 +245,8 @@ const Settings = memo(() => {
                     Customize how ClarityOS looks and feels
                   </p>
                 </div>
-              </div>
-
+                </div>
+                
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {/* Theme Toggle */}
                 <div className="glass-panel p-4 rounded-xl">
@@ -305,8 +293,8 @@ const Settings = memo(() => {
                         <p className="text-sm text-gray-600 dark:text-gray-400">
                           Your preferred currency
                         </p>
-                      </div>
-                    </div>
+                  </div>
+                  </div>
                     <Select
                       value={currency}
                       onChange={(value) => {
@@ -322,13 +310,13 @@ const Settings = memo(() => {
                   </div>
                 </div>
               </div>
-            </div>
-          </Card>
+              </div>
+            </Card>
         </div>
       </motion.div>
 
       {/* Data Management & Export */}
-      <motion.div
+          <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -363,17 +351,17 @@ const Settings = memo(() => {
                     onClick={exportMoneyManagerCSV}
                     className="glass-panel p-4 rounded-xl hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-all duration-300 group"
                   >
-                    <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-emerald-500 to-green-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                         <FileSpreadsheet className="h-4 w-4 text-white" />
                       </div>
                       <div className="text-left">
-                        <p className="font-medium text-gray-900 dark:text-gray-100">
+                          <p className="font-medium text-gray-900 dark:text-gray-100">
                           Expenses CSV
-                        </p>
+                          </p>
                         <p className="text-xs text-gray-600 dark:text-gray-400">
                           All expense data
-                        </p>
+                          </p>
                       </div>
                       <ArrowUpRight className="h-4 w-4 text-gray-400 group-hover:text-emerald-500 transition-colors duration-300" />
                     </div>
@@ -386,7 +374,7 @@ const Settings = memo(() => {
                     <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                         <Target className="h-4 w-4 text-white" />
-                      </div>
+                  </div>
                       <div className="text-left">
                         <p className="font-medium text-gray-900 dark:text-gray-100">
                           Budgets CSV
@@ -422,66 +410,19 @@ const Settings = memo(() => {
                     <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                         <Shield className="h-4 w-4 text-white" />
-                      </div>
+                  </div>
                       <div className="text-left">
                         <p className="font-medium text-gray-900 dark:text-gray-100">
                           Full Backup
                         </p>
                         <p className="text-xs text-gray-600 dark:text-gray-400">
                           Complete data export
-                        </p>
-                      </div>
+                      </p>
+                    </div>
                       <ArrowUpRight className="h-4 w-4 text-gray-400 group-hover:text-orange-500 transition-colors duration-300" />
                     </div>
                   </button>
                 </div>
-              </div>
-
-              {/* Comprehensive Excel Report - NEW! */}
-              <div className="space-y-4 pt-6 border-t border-gray-200/50 dark:border-gray-700/50">
-                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                  <Sparkles className="h-4 w-4" />
-                  🚀 Interactive Excel Reports with Charts
-                </h4>
-                
-                <button
-                  onClick={exportComprehensiveReport}
-                  className="w-full glass-panel p-6 rounded-xl hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-indigo-50/50 dark:hover:from-purple-900/20 dark:hover:to-indigo-900/20 transition-all duration-300 group border-2 border-purple-200/50 dark:border-purple-800/50"
-                >
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <motion.div
-                        animate={{ rotate: [0, 360] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                      >
-                        <Sparkles className="h-6 w-6 text-white" />
-                      </motion.div>
-                    </div>
-                    <div className="text-left flex-1">
-                      <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
-                        📊 Download All Combined Data
-                      </h4>
-                      <p className="text-sm text-purple-600 dark:text-purple-400 font-medium mb-2">
-                        Interactive Excel with Charts & Visual Analytics
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 rounded-full">
-                          📈 Budget Analysis
-                        </span>
-                        <span className="text-xs px-2 py-1 bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 rounded-full">
-                          📊 Category Trends
-                        </span>
-                        <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-full">
-                          🎯 Financial Health
-                        </span>
-                        <span className="text-xs px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 rounded-full">
-                          🔮 Predictive Analytics
-                        </span>
-                      </div>
-                    </div>
-                    <ArrowUpRight className="h-6 w-6 text-gray-400 group-hover:text-purple-500 transition-colors duration-300" />
-                  </div>
-                </button>
               </div>
 
               {/* Import & Other Actions */}
@@ -494,7 +435,7 @@ const Settings = memo(() => {
                   <div className="flex items-center space-x-3">
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center">
                       {importing ? (
-                        <motion.div
+          <motion.div
                           animate={{ rotate: 360 }}
                           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                           className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
@@ -502,16 +443,16 @@ const Settings = memo(() => {
                       ) : (
                         <Upload className="h-4 w-4 text-white" />
                       )}
-                    </div>
+                </div>
                     <div className="text-left">
-                      <p className="font-medium text-gray-900 dark:text-gray-100">
+                          <p className="font-medium text-gray-900 dark:text-gray-100">
                         {importing ? 'Importing...' : 'Import Data'}
-                      </p>
+                          </p>
                       <p className="text-xs text-gray-600 dark:text-gray-400">
-                        Restore from backup
-                      </p>
-                    </div>
-                  </div>
+                            Restore from backup
+                          </p>
+                        </div>
+                      </div>
                 </button>
 
                 <button
@@ -541,8 +482,8 @@ const Settings = memo(() => {
                 onChange={handleImport}
                 className="hidden"
               />
-            </div>
-          </Card>
+              </div>
+            </Card>
         </div>
       </motion.div>
 
@@ -557,21 +498,21 @@ const Settings = memo(() => {
         <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 to-pink-500/5 rounded-2xl blur-xl"></div>
           <Card variant="glass" className="relative border-red-200/30 dark:border-red-800/30">
-            <div className="space-y-4">
+        <div className="space-y-4">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-red-500 to-pink-500 flex items-center justify-center">
                   <AlertTriangle className="h-5 w-5 text-white" />
                 </div>
-                <div>
+              <div>
                   <h3 className="text-lg font-semibold text-red-600 dark:text-red-400">
                     Danger Zone
                   </h3>
                   <p className="text-sm text-red-600/80 dark:text-red-400/80">
                     Irreversible actions - proceed with caution
                   </p>
-                </div>
-              </div>
-              
+            </div>
+          </div>
+          
               <button
                 onClick={() => setShowDeleteModal(true)}
                 className="w-full p-4 rounded-xl border-2 border-red-200/50 dark:border-red-800/50 bg-red-50/50 dark:bg-red-900/20 hover:bg-red-100/50 dark:hover:bg-red-900/40 transition-all duration-300 group"
@@ -581,7 +522,7 @@ const Settings = memo(() => {
                   <span className="font-medium text-red-600 dark:text-red-400">
                     Delete All Data
                   </span>
-                </div>
+          </div>
               </button>
             </div>
           </Card>
@@ -597,13 +538,13 @@ const Settings = memo(() => {
         <div className="space-y-4">
           <div className="flex items-center space-x-3 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
             <AlertTriangle className="h-8 w-8 text-red-500 flex-shrink-0" />
-            <div>
+              <div>
               <p className="font-semibold text-red-900 dark:text-red-100">
                 This action cannot be undone!
-              </p>
-              <p className="text-sm text-red-700 dark:text-red-300">
+                </p>
+                <p className="text-sm text-red-700 dark:text-red-300">
                 All your expenses, budgets, and settings will be permanently deleted.
-              </p>
+                </p>
             </div>
           </div>
           
@@ -631,4 +572,4 @@ const Settings = memo(() => {
 
 Settings.displayName = 'Settings';
 
-export default Settings;
+export default Settings; 

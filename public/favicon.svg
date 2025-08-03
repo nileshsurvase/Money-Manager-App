@@ -7,11 +7,3 @@
         fill="white" 
         opacity="0.95"/>
 </svg>
-  <!-- Orange Background -->
-  <rect width="32" height="32" rx="6" fill="#f97316"/>
-  
-  <!-- Lightning Bolt -->
-  <path d="M18 4 L12 16 L16 16 L15 28 L21 16 L16 16 L18 4 Z" 
-        fill="white" 
-        opacity="0.95"/>
-</svg>

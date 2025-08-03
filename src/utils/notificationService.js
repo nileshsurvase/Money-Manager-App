@@ -1,335 +1,380 @@
-// Enhanced Notification Service for My Diary
-// Handles browser notifications with Capacitor mobile support
-
-import { Capacitor } from '@capacitor/core';
+// Notification Service for Diary App
+import { hasEntryForToday, getTodaysDue } from './diaryStorage';
 
 class NotificationService {
   constructor() {
     this.permission = 'default';
-    this.isCapacitor = Capacitor.isNativePlatform();
-    this.LocalNotifications = null;
-    
+    this.reminders = this.loadReminders();
+    this.intervals = new Map();
     this.init();
   }
 
   async init() {
-    // Initialize platform-specific features
-    if (this.isCapacitor) {
-      // For mobile platforms, try to load LocalNotifications at runtime
-      await this.loadMobileNotifications();
-      await this.requestPermission();
-    } else {
-      // Browser notifications
-      this.checkBrowserSupport();
-      await this.requestPermission();
-    }
-  }
-
-  async loadMobileNotifications() {
-    try {
-      // Only try to load on actual mobile runtime, not during build
-      if (typeof window !== 'undefined' && window.Capacitor) {
-        // Dynamic import that won't be processed during build
-        const importPath = '@capacitor/local-notifications';
-        const module = await import(/* @vite-ignore */ importPath);
-        this.LocalNotifications = module.LocalNotifications;
-        console.log('✅ Mobile notifications loaded successfully');
-      }
-    } catch (error) {
-      console.warn('Mobile notifications not available, falling back to browser notifications:', error);
-      this.checkBrowserSupport();
-    }
-  }
-
-  checkBrowserSupport() {
+    // Check if Notification API is supported
     if (!('Notification' in window)) {
       console.warn('This browser does not support notifications');
-      return false;
+      this.permission = 'denied';
+      return;
     }
-    return true;
+    
+    // Get current permission status
+    this.permission = Notification.permission;
+    console.log('Notification permission:', this.permission);
+    
+    // Setup existing reminders only if permission is granted
+    if (this.permission === 'granted') {
+      this.setupAllReminders();
+    }
+    
+    // Check for due journals on app load
+    setTimeout(() => {
+      this.checkDueJournals();
+    }, 2000); // Wait 2 seconds after app loads
   }
 
-  async requestPermission() {
+  loadReminders() {
     try {
-      if (this.isCapacitor && this.LocalNotifications) {
-        // Mobile: Request permissions through Capacitor
-        const permission = await this.LocalNotifications.requestPermissions();
-        this.permission = permission.display === 'granted' ? 'granted' : 'denied';
-      } else {
-        // Browser: Request permission through Notification API
-        if ('Notification' in window) {
-          this.permission = await Notification.requestPermission();
-        }
-      }
-      
-      console.log('📱 Notification permission:', this.permission);
-      return this.permission === 'granted';
+      const stored = localStorage.getItem('diary_reminders');
+      return stored ? JSON.parse(stored) : {
+        daily: { enabled: false, time: '20:00', message: 'Time for your daily journal!' },
+        weekly: { enabled: false, time: '19:00', message: 'Weekly reflection time!' },
+        monthly: { enabled: false, time: '18:00', message: 'Monthly review time!' },
+        random: { enabled: false, frequency: 3, message: 'How are you feeling?' }
+      };
     } catch (error) {
-      console.error('Error requesting notification permission:', error);
-      return false;
+      console.error('Error loading reminders:', error);
+      return {};
     }
   }
 
-  getRouteFromTag(tag) {
-    if (tag?.includes('daily')) {
-      return '/diary/daily';
-    } else if (tag?.includes('weekly')) {
-      return '/diary/weekly';
-    } else if (tag?.includes('monthly')) {
-      return '/diary/monthly';
-    } else {
-      return '/diary';
+  saveReminders() {
+    try {
+      localStorage.setItem('diary_reminders', JSON.stringify(this.reminders));
+    } catch (error) {
+      console.error('Error saving reminders:', error);
     }
   }
 
-  async testNotification() {
-    console.log('🧪 Testing notification system...');
+  updateReminder(type, settings) {
+    this.reminders[type] = { ...this.reminders[type], ...settings };
+    this.saveReminders();
     
-    if (this.permission !== 'granted') {
-      const granted = await this.requestPermission();
-      if (!granted) {
-        console.log('❌ Permission denied for notifications');
-        return false;
+    // Clear existing reminder
+    this.clearReminder(type);
+    
+    // Setup new reminder if enabled
+    if (settings.enabled) {
+      this.setupReminder(type);
+    }
+  }
+
+  setupAllReminders() {
+    Object.keys(this.reminders).forEach(type => {
+      if (this.reminders[type].enabled) {
+        this.setupReminder(type);
       }
-    }
-
-    const success = await this.showNotification(
-      '🎉 Test Notification',
-      'Your notification system is working perfectly! Ready to keep you on track with your journaling journey.',
-      { tag: 'test-notification' }
-    );
-
-    if (success) {
-      console.log('✅ Test notification sent successfully!');
-    } else {
-      console.log('❌ Test notification failed');
-    }
-
-    return success;
+    });
   }
 
-  scheduleReminder(type, time, message) {
-    console.log(`⏰ Scheduling ${type} reminder for ${time}`);
+  setupReminder(type) {
+    const reminder = this.reminders[type];
+    if (!reminder.enabled) return;
+
+    switch (type) {
+      case 'daily':
+        this.setupDailyReminder();
+        break;
+      case 'weekly':
+        this.setupWeeklyReminder();
+        break;
+      case 'monthly':
+        this.setupMonthlyReminder();
+        break;
+      case 'random':
+        this.setupRandomReminder();
+        break;
+    }
+  }
+
+  setupDailyReminder() {
+    const reminder = this.reminders.daily;
+    const [hours, minutes] = reminder.time.split(':').map(Number);
     
+    const scheduleDaily = () => {
       const now = new Date();
-    const [hours, minutes] = time.split(':');
-    const reminderTime = new Date();
-    reminderTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
+      
+      // If time has passed today, schedule for tomorrow
+      if (today <= now) {
+        today.setDate(today.getDate() + 1);
+      }
+      
+      const timeUntilReminder = today.getTime() - now.getTime();
+      
+      const timeoutId = setTimeout(() => {
+        // Check if daily entry is already completed
+        if (!hasEntryForToday('daily')) {
+          this.showNotification('Daily Journal Reminder', reminder.message, {
+            icon: '📝',
+            tag: 'daily-reminder'
+          });
+        }
+        
+        // Schedule next day
+        scheduleDaily();
+      }, timeUntilReminder);
+      
+      this.intervals.set('daily', timeoutId);
+    };
     
-    // If the time has passed today, schedule for tomorrow
-    if (reminderTime <= now) {
-      reminderTime.setDate(reminderTime.getDate() + 1);
+    scheduleDaily();
+  }
+
+  setupWeeklyReminder() {
+    const reminder = this.reminders.weekly;
+    const [hours, minutes] = reminder.time.split(':').map(Number);
+    
+    const scheduleWeekly = () => {
+      const now = new Date();
+        const nextSunday = new Date(now);
+  
+  // Find next Sunday (day 0)
+  const daysUntilSunday = (7 - now.getDay()) % 7;
+  if (daysUntilSunday === 0 && (now.getHours() > hours || (now.getHours() === hours && now.getMinutes() >= minutes))) {
+    nextSunday.setDate(now.getDate() + 7);
+  } else {
+    nextSunday.setDate(now.getDate() + daysUntilSunday);
+  }
+  
+  nextSunday.setHours(hours, minutes, 0, 0);
+  
+  const timeUntilReminder = nextSunday.getTime() - now.getTime();
+      
+      const timeoutId = setTimeout(() => {
+        if (!hasEntryForToday('weekly')) {
+          this.showNotification('Weekly Journal Reminder', reminder.message, {
+            icon: '📖',
+            tag: 'weekly-reminder'
+          });
+        }
+        
+        // Schedule next week
+        scheduleWeekly();
+      }, timeUntilReminder);
+      
+      this.intervals.set('weekly', timeoutId);
+    };
+    
+    scheduleWeekly();
+  }
+
+  setupMonthlyReminder() {
+    const reminder = this.reminders.monthly;
+    const [hours, minutes] = reminder.time.split(':').map(Number);
+    
+    const scheduleMonthly = () => {
+      const now = new Date();
+      const nextFirst = new Date(now.getFullYear(), now.getMonth(), 1, hours, minutes);
+      
+      // If it's past the 1st of this month, schedule for next month
+      if (now.getDate() > 1 || (now.getDate() === 1 && (now.getHours() > hours || (now.getHours() === hours && now.getMinutes() >= minutes)))) {
+        nextFirst.setMonth(nextFirst.getMonth() + 1);
+      }
+      
+      const timeUntilReminder = nextFirst.getTime() - now.getTime();
+      
+      const timeoutId = setTimeout(() => {
+        if (!hasEntryForToday('monthly')) {
+          this.showNotification('Monthly Journal Reminder', reminder.message, {
+            icon: '📅',
+            tag: 'monthly-reminder'
+          });
+        }
+        
+        // Schedule next month
+        scheduleMonthly();
+      }, timeUntilReminder);
+      
+      this.intervals.set('monthly', timeoutId);
+    };
+    
+    scheduleMonthly();
+  }
+
+  setupRandomReminder() {
+    const reminder = this.reminders.random;
+    
+    const scheduleRandom = () => {
+      // Random interval between 2-6 hours
+      const minHours = 2;
+      const maxHours = 6;
+      const randomHours = Math.random() * (maxHours - minHours) + minHours;
+      const randomMillis = randomHours * 60 * 60 * 1000;
+      
+      const timeoutId = setTimeout(() => {
+        // Only show random reminders during waking hours (8 AM - 10 PM)
+        const now = new Date();
+        const hour = now.getHours();
+        
+        if (hour >= 8 && hour <= 22) {
+          this.showNotification('Journal Check-in', reminder.message, {
+            icon: '💭',
+            tag: 'random-reminder',
+            silent: true
+          });
+        }
+        
+        // Schedule next random reminder
+        scheduleRandom();
+      }, randomMillis);
+      
+      this.intervals.set('random', timeoutId);
+    };
+    
+    scheduleRandom();
+  }
+
+  clearReminder(type) {
+    if (this.intervals.has(type)) {
+      clearTimeout(this.intervals.get(type));
+      this.intervals.delete(type);
+    }
+  }
+
+  clearAllReminders() {
+    this.intervals.forEach((timeoutId) => {
+      clearTimeout(timeoutId);
+    });
+    this.intervals.clear();
+  }
+
+  showNotification(title, body, options = {}) {
+    // Check if Notification API is supported
+    if (!('Notification' in window)) {
+      console.warn('Notifications not supported in this browser');
+      return;
     }
     
-    const timeUntilReminder = reminderTime.getTime() - now.getTime();
-    
-    setTimeout(() => {
-      this.showNotification(
-        `📝 ${type.charAt(0).toUpperCase() + type.slice(1)} Journal Reminder`,
-        message,
-        { tag: `${type}-reminder` }
-      );
-      }, timeUntilReminder);
-    
-    console.log(`⏰ ${type} reminder scheduled for ${reminderTime.toLocaleString()}`);
-  }
-
-  scheduleRandomReminder() {
-    // Schedule a random reminder within the next 4-8 hours
-    const randomHours = Math.random() * 4 + 4; // 4-8 hours
-    const randomTime = randomHours * 60 * 60 * 1000; // Convert to milliseconds
-    
-    setTimeout(() => {
-      const messages = [
-        "💭 Take a moment to reflect on your day",
-        "✨ What made you smile today?",
-        "🌟 Capture today's special moments",
-        "💝 What are you grateful for right now?",
-        "🎯 How are you progressing toward your goals?",
-        "😊 Share what's on your mind today"
-      ];
-      
-      const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-      
-      this.showNotification(
-        '📖 Random Journal Prompt',
-        randomMessage,
-        { tag: 'random-reminder' }
-      );
-    }, randomTime);
-    
-    console.log(`🎲 Random reminder scheduled in ${(randomTime / (1000 * 60 * 60)).toFixed(1)} hours`);
-  }
-
-  async showNotification(title, body, options = {}) {
     // Check permission
     if (this.permission !== 'granted') {
       console.log('Notification permission not granted:', this.permission);
       return;
     }
 
-    try {
-      if (this.isCapacitor && this.LocalNotifications) {
-        // Use Capacitor LocalNotifications for mobile
-        const notificationId = Date.now();
-        await this.LocalNotifications.schedule({
-          notifications: [
-            {
-              title,
-              body,
-              id: notificationId,
-              schedule: { at: new Date(Date.now() + 1000) }, // Schedule 1 second from now
-              sound: 'default',
-              attachments: [],
-              actionTypeId: '',
-              extra: {
-                tag: options.tag || 'diary-notification',
-                route: this.getRouteFromTag(options.tag)
-              }
-            }
-          ]
-        });
-
-        // Listen for notification actions
-        this.LocalNotifications.addListener('localNotificationActionPerformed', (notification) => {
-          if (notification.notification.extra?.route) {
-            window.location.href = notification.notification.extra.route;
-          }
-        });
-      } else {
-        // Web browser notifications
-        if (!('Notification' in window)) {
-          console.warn('Notifications not supported in this browser');
-      return;
-    }
-
     const defaultOptions = {
       body,
-          icon: '/icons/icon-192x192.svg', // Updated icon path
-          badge: '/icons/icon-192x192.svg', // Updated icon path
+      icon: '/favicon.svg',
+      badge: '/favicon.svg',
       tag: 'diary-notification',
       requireInteraction: true,
-          silent: false,
+      silent: false,
       ...options
     };
 
+    try {
       const notification = new Notification(title, defaultOptions);
       
       notification.onclick = () => {
         window.focus();
         notification.close();
         
-        // Navigate to appropriate journal page
-          const route = this.getRouteFromTag(options.tag);
-          window.location.href = route;
+        // Navigate to appropriate journal page using correct React Router paths
+        if (options.tag?.includes('daily')) {
+          window.location.href = '/diary/daily';
+        } else if (options.tag?.includes('weekly')) {
+          window.location.href = '/diary/weekly';
+        } else if (options.tag?.includes('monthly')) {
+          window.location.href = '/diary/monthly';
+        } else {
+          // Default to diary dashboard
+          window.location.href = '/diary';
+        }
       };
       
       // Auto-close after 10 seconds
       setTimeout(() => {
         notification.close();
       }, 10000);
-      }
+      
     } catch (error) {
       console.error('Error showing notification:', error);
     }
   }
 
-  getRouteFromTag(tag) {
-    if (tag?.includes('daily')) {
-      return '/diary/daily';
-    } else if (tag?.includes('weekly')) {
-      return '/diary/weekly';
-    } else if (tag?.includes('monthly')) {
-      return '/diary/monthly';
-    } else {
-      return '/diary';
-    }
-  }
-
   checkDueJournals() {
-    console.log('📅 Checking due journals...');
+    const dueToday = getTodaysDue();
     
-    try {
-      const now = new Date();
-      const currentDate = now.toISOString().split('T')[0];
-      const dueJournals = [];
-
-      // Check if today's daily journal is missing
-      const dailyEntries = JSON.parse(localStorage.getItem('diary_daily_entries') || '[]');
-      const todayDaily = dailyEntries.find(entry => {
-        const entryDate = new Date(entry.date).toISOString().split('T')[0];
-        return entryDate === currentDate;
-      });
-
-      if (!todayDaily) {
-        dueJournals.push({
-          type: 'daily',
-          message: "Don't forget to write your daily journal!",
-          route: '/diary/daily'
-        });
-      }
-
-      // Check for weekly journal (if it's Sunday and no weekly entry this week)
-      if (now.getDay() === 0) { // Sunday
-        const weeklyEntries = JSON.parse(localStorage.getItem('diary_weekly_entries') || '[]');
-        const thisWeekStart = new Date(now.setDate(now.getDate() - now.getDay()));
-        const weekStart = thisWeekStart.toISOString().split('T')[0];
-        
-        const thisWeekEntry = weeklyEntries.find(entry => {
-          const entryDate = new Date(entry.date).toISOString().split('T')[0];
-          return entryDate >= weekStart;
-        });
-
-        if (!thisWeekEntry) {
-          dueJournals.push({
-            type: 'weekly',
-            message: "Time for your weekly reflection!",
-            route: '/diary/weekly'
-          });
+    if (dueToday.length > 0) {
+      // Show a summary notification for all due journals
+      const types = dueToday.map(item => item.type).join(', ');
+      this.showNotification(
+        'Journals Due Today', 
+        `You have ${dueToday.length} journal entries due today: ${types}`,
+        {
+          icon: '📝',
+          tag: 'due-summary'
         }
-      }
-
-      // Check for monthly journal (if it's the last day of the month)
-      const tomorrow = new Date(now);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      if (tomorrow.getDate() === 1) { // Last day of month
-        const monthlyEntries = JSON.parse(localStorage.getItem('diary_monthly_entries') || '[]');
-        const currentMonth = now.getMonth();
-        const currentYear = now.getFullYear();
-        
-        const thisMonthEntry = monthlyEntries.find(entry => {
-          const entryDate = new Date(entry.date);
-          return entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
-        });
-
-        if (!thisMonthEntry) {
-          dueJournals.push({
-            type: 'monthly',
-            message: "Complete your monthly review!",
-            route: '/diary/monthly'
-          });
-        }
-      }
-
-      console.log(`📋 Found ${dueJournals.length} due journals:`, dueJournals);
-      return dueJournals;
-    } catch (error) {
-      console.error('Error checking due journals:', error);
-      return [];
+      );
     }
   }
 
-  async refresh() {
-    console.log('🔄 Refreshing notification service...');
-    try {
-      await this.requestPermission();
+  // Method to show motivational notifications
+  showMotivationalNotification() {
+    const motivationalMessages = [
+      "You're doing great with your journaling journey! 🌟",
+      "Self-reflection is a superpower. Keep it up! 💪",
+      "Every entry is a step towards better self-awareness 🧠",
+      "Your thoughts matter. Write them down! ✍️",
+      "Consistency builds habits. You've got this! 🔥"
+    ];
+    
+    const randomMessage = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
+    
+    this.showNotification('Journaling Motivation', randomMessage, {
+      icon: '🌈',
+      tag: 'motivation',
+      silent: true
+    });
+  }
+
+  // Test notification method
+  testNotification() {
+    this.showNotification('Test Notification', 'This is a test notification from your diary app!', {
+      icon: '🧪',
+      tag: 'test'
+    });
+  }
+
+  getReminders() {
+    return this.reminders;
+  }
+
+  getReminderStatus() {
+    // Update permission status from browser
+    if ('Notification' in window) {
+      this.permission = Notification.permission;
+    }
+    
+    return {
+      permission: this.permission,
+      activeReminders: Array.from(this.intervals.keys()),
+      totalReminders: Object.values(this.reminders).filter(r => r.enabled).length,
+      supported: 'Notification' in window
+    };
+  }
+
+  // Method to refresh the service after permission changes
+  refresh() {
+    if ('Notification' in window) {
+      this.permission = Notification.permission;
       
-      // Re-check due journals
-      this.checkDueJournals();
+      // Clear existing reminders
+      this.clearAllReminders();
       
-      console.log('✅ Notification service refreshed successfully');
-    } catch (error) {
-      console.error('Error refreshing notification service:', error);
+      // Setup reminders if permission is granted
+      if (this.permission === 'granted') {
+        this.setupAllReminders();
+      }
     }
   }
 }

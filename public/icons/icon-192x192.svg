@@ -10,10 +10,3 @@
   <!-- CoreOS Text -->
   <text x="96" y="175" text-anchor="middle" fill="white" font-size="14" font-weight="bold" opacity="0.9">CoreOS</text>
 </svg>
-  <path d="M105 30 L75 90 L97 90 L90 161 L120 101 L97 101 L105 30 Z" 
-        fill="white" 
-        opacity="0.95"/>
-  
-  <!-- CoreOS Text -->
-  <text x="96" y="175" text-anchor="middle" fill="white" font-size="14" font-weight="bold" opacity="0.9">CoreOS</text>
-</svg>

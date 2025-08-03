@@ -50,7 +50,6 @@ import {
   exportWellbeingToCSV,
   generateSampleDiaryFile
 } from '../../utils/diaryStorage';
-import { createMyDiaryExcelReport } from '../../utils/enhancedExcelExport';
 import Input from '../../components/Input';
 import { useTheme } from '../../context/ThemeContext';
 import notificationService from '../../utils/notificationService';
@@ -120,8 +119,8 @@ const DiarySettings = memo(() => {
   const requestNotificationPermission = useCallback(async () => {
     if ('Notification' in window) {
       try {
-        const permission = await Notification.requestPermission();
-        setNotificationStatus(prev => ({ ...prev, permission }));
+      const permission = await Notification.requestPermission();
+      setNotificationStatus(prev => ({ ...prev, permission }));
         notificationService.permission = permission;
         notificationService.refresh();
         loadNotificationStatus();
@@ -164,7 +163,7 @@ const DiarySettings = memo(() => {
         }
         
         setTimeout(() => window.location.reload(), 1000);
-      } catch (error) {
+    } catch (error) {
         console.error('Import error:', error);
       } finally {
         setImporting(false);
@@ -198,22 +197,6 @@ const DiarySettings = memo(() => {
     }
   }, []);
 
-  const exportComprehensiveDiaryReport = useCallback(async () => {
-    try {
-      const toast = { 
-        success: (msg) => console.log(msg),
-        error: (msg) => console.error(msg)
-      };
-      toast.success?.('🚀 Generating comprehensive diary report with wellness analytics...');
-      await createMyDiaryExcelReport();
-      toast.success?.('📊 Beautiful Excel report with mood patterns and habit analytics downloaded successfully!');
-    } catch (error) {
-      console.error('Enhanced diary export error:', error);
-      const toast = { error: (msg) => console.error(msg) };
-      toast.error?.('Failed to generate comprehensive diary report');
-    }
-  }, []);
-
   return (
     <div className="spacing-lg">
       {/* Beautiful Header with Dashboard Theme */}
@@ -221,30 +204,30 @@ const DiarySettings = memo(() => {
         <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-green-500/5 rounded-2xl sm:rounded-3xl blur-xl"></div>
         <Card variant="glass" className="relative">
           <div className="flex flex-col space-y-4 sm:space-y-6">
-            <div className="space-y-2">
+          <div className="space-y-2">
               <h1 className="text-gradient flex items-center gap-2 sm:gap-3">
                 <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-emerald-500" />
                 Diary Settings
-              </h1>
+            </h1>
               <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base lg:text-lg">
                 Customize your journaling experience
-              </p>
-            </div>
+            </p>
+          </div>
             
             {/* Quick Save Action */}
             {hasChanges && (
-              <motion.div
+      <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="flex rounded-xl border border-emerald-200/50 dark:border-emerald-700/50 bg-emerald-50/50 dark:bg-emerald-900/20 backdrop-blur-md p-4"
               >
                 <div className="flex items-center justify-between w-full">
-                  <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-3">
                     <AlertTriangle className="h-5 w-5 text-emerald-500" />
                     <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
                       You have unsaved changes
                     </span>
-                  </div>
+                </div>
                   <Button
                     onClick={saveSettings}
                     loading={saving}
@@ -252,7 +235,7 @@ const DiarySettings = memo(() => {
                   >
                     {saving ? 'Saving...' : 'Save Now'}
                   </Button>
-                </div>
+                  </div>
               </motion.div>
             )}
           </div>
@@ -274,29 +257,29 @@ const DiarySettings = memo(() => {
                   <Palette className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                     General Preferences
-                  </h3>
+              </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     Configure your diary settings and appearance
                   </p>
                 </div>
-              </div>
+            </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Auto Save */}
                 <div className="glass-panel p-4 rounded-xl">
-                  <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <Save className="h-5 w-5 text-emerald-500" />
-                      <div>
+                <div>
                         <p className="font-medium text-gray-900 dark:text-gray-100">
-                          Auto Save
+                    Auto Save
                         </p>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
                           Save automatically
-                        </p>
-                      </div>
+                  </p>
+                </div>
                     </div>
                     <button
                       onClick={() => handleSettingChange('autoSave', !settings.autoSave)}
@@ -311,22 +294,22 @@ const DiarySettings = memo(() => {
                       />
                     </button>
                   </div>
-                </div>
+              </div>
 
                 {/* Show Emotions */}
                 <div className="glass-panel p-4 rounded-xl">
-                  <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <Heart className="h-5 w-5 text-pink-500" />
-                      <div>
+                <div>
                         <p className="font-medium text-gray-900 dark:text-gray-100">
-                          Show Emotions
+                    Show Emotions
                         </p>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
                           Emotion tracking
-                        </p>
-                      </div>
-                    </div>
+                  </p>
+                </div>
+              </div>
                     <button
                       onClick={() => handleSettingChange('showEmotions', !settings.showEmotions)}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${
@@ -339,8 +322,8 @@ const DiarySettings = memo(() => {
                         }`}
                       />
                     </button>
-                  </div>
-                </div>
+            </div>
+              </div>
 
                 {/* Dark Mode */}
                 <div className="glass-panel p-4 rounded-xl">
@@ -351,14 +334,14 @@ const DiarySettings = memo(() => {
                       ) : (
                         <Sun className="h-5 w-5 text-yellow-500" />
                       )}
-                      <div>
+                  <div>
                         <p className="font-medium text-gray-900 dark:text-gray-100">
                           Dark Mode
                         </p>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
                           {isDark ? 'Dark active' : 'Light active'}
-                        </p>
-                      </div>
+                    </p>
+                  </div>
                     </div>
                     <button
                       onClick={toggleTheme}
@@ -372,11 +355,11 @@ const DiarySettings = memo(() => {
                         }`}
                       />
                     </button>
-                  </div>
                 </div>
               </div>
             </div>
-          </Card>
+          </div>
+        </Card>
         </div>
       </motion.div>
 
@@ -384,13 +367,13 @@ const DiarySettings = memo(() => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
+            transition={{ delay: 0.2 }}
+          >
         <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-cyan-500/5 rounded-2xl blur-xl"></div>
           <Card variant="glass" className="relative">
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
                     <Bell className="h-5 w-5 text-white" />
@@ -403,22 +386,22 @@ const DiarySettings = memo(() => {
                       Stay on track with smart reminders
                     </p>
                   </div>
-                </div>
-                <div className="flex items-center space-x-2">
+                  </div>
+                  <div className="flex items-center space-x-2">
                   <span className={`text-xs px-3 py-1 rounded-full font-medium ${
-                    notificationStatus.permission === 'granted' 
-                      ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400' 
-                      : 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400'
-                  }`}>
-                    {notificationStatus.permission === 'granted' ? '✓ Enabled' : '✗ Disabled'}
-                  </span>
-                  {notificationStatus.permission !== 'granted' && (
-                    <Button size="sm" onClick={requestNotificationPermission}>
-                      Enable
-                    </Button>
-                  )}
+                      notificationStatus.permission === 'granted' 
+                        ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400' 
+                        : 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400'
+                    }`}>
+                      {notificationStatus.permission === 'granted' ? '✓ Enabled' : '✗ Disabled'}
+                    </span>
+                    {notificationStatus.permission !== 'granted' && (
+                      <Button size="sm" onClick={requestNotificationPermission}>
+                        Enable
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Daily Reminder */}
@@ -450,13 +433,13 @@ const DiarySettings = memo(() => {
                   </div>
                   {reminders.daily?.enabled && (
                     <input
-                      type="time"
-                      value={reminders.daily?.time || '20:00'}
-                      onChange={(e) => handleReminderChange('daily', 'time', e.target.value)}
+                        type="time"
+                        value={reminders.daily?.time || '20:00'}
+                        onChange={(e) => handleReminderChange('daily', 'time', e.target.value)}
                       className="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                    />
+                      />
                   )}
-                </div>
+                    </div>
 
                 {/* Weekly Reminder */}
                 <div className="glass-panel p-4 rounded-xl">
@@ -487,13 +470,13 @@ const DiarySettings = memo(() => {
                   </div>
                   {reminders.weekly?.enabled && (
                     <input
-                      type="time"
-                      value={reminders.weekly?.time || '19:00'}
-                      onChange={(e) => handleReminderChange('weekly', 'time', e.target.value)}
+                        type="time"
+                        value={reminders.weekly?.time || '19:00'}
+                        onChange={(e) => handleReminderChange('weekly', 'time', e.target.value)}
                       className="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
+                      />
                   )}
-                </div>
+                    </div>
 
                 {/* Monthly Reminder */}
                 <div className="glass-panel p-4 rounded-xl">
@@ -524,15 +507,15 @@ const DiarySettings = memo(() => {
                   </div>
                   {reminders.monthly?.enabled && (
                     <input
-                      type="time"
-                      value={reminders.monthly?.time || '18:00'}
-                      onChange={(e) => handleReminderChange('monthly', 'time', e.target.value)}
+                        type="time"
+                        value={reminders.monthly?.time || '18:00'}
+                        onChange={(e) => handleReminderChange('monthly', 'time', e.target.value)}
                       className="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     />
                   )}
-                </div>
+                  </div>
 
-                {/* Random Check-ins */}
+                  {/* Random Check-ins */}
                 <div className="glass-panel p-4 rounded-xl">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
@@ -544,7 +527,7 @@ const DiarySettings = memo(() => {
                         <p className="text-sm text-gray-600 dark:text-gray-400">
                           Every {reminders.random?.frequency || 3} hours
                         </p>
-                      </div>
+                    </div>
                     </div>
                     <button
                       onClick={() => handleReminderChange('random', 'enabled', !reminders.random?.enabled)}
@@ -559,14 +542,14 @@ const DiarySettings = memo(() => {
                       />
                     </button>
                   </div>
+                  </div>
                 </div>
-              </div>
 
               {/* Test Notification */}
               <div className="pt-4 border-t border-gray-200/50 dark:border-gray-700/50">
                 <button
-                  onClick={testNotification}
-                  disabled={notificationStatus.permission !== 'granted'}
+                    onClick={testNotification}
+                    disabled={notificationStatus.permission !== 'granted'}
                   className="w-full glass-panel p-4 rounded-xl hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-all duration-300 group disabled:opacity-50"
                 >
                   <div className="flex items-center justify-center space-x-3">
@@ -576,18 +559,18 @@ const DiarySettings = memo(() => {
                     </span>
                   </div>
                 </button>
+                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
         </div>
       </motion.div>
 
       {/* Data Export & Management */}
-      <motion.div
+          <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-      >
+            transition={{ delay: 0.3 }}
+          >
         <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-lime-500/5 rounded-2xl blur-xl"></div>
           <Card variant="glass" className="relative">
@@ -597,14 +580,14 @@ const DiarySettings = memo(() => {
                   <Database className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                     Data Export & Management
-                  </h3>
+              </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     Export, backup, and manage your diary data
                   </p>
                 </div>
-              </div>
+            </div>
 
               {/* Advanced Excel Exports */}
               <div className="space-y-4">
@@ -628,10 +611,10 @@ const DiarySettings = memo(() => {
                         </p>
                         <p className="text-xs text-gray-600 dark:text-gray-400">
                           All daily entries
-                        </p>
-                      </div>
+                          </p>
+                        </div>
                       <ArrowUpRight className="h-4 w-4 text-gray-400 group-hover:text-emerald-500 transition-colors duration-300" />
-                    </div>
+                      </div>
                   </button>
 
                   <button
@@ -641,17 +624,17 @@ const DiarySettings = memo(() => {
                     <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                         <Calendar className="h-4 w-4 text-white" />
-                      </div>
+                        </div>
                       <div className="text-left">
                         <p className="font-medium text-gray-900 dark:text-gray-100">
                           Weekly Journal
                         </p>
                         <p className="text-xs text-gray-600 dark:text-gray-400">
                           Weekly reflections
-                        </p>
-                      </div>
-                      <ArrowUpRight className="h-4 w-4 text-gray-400 group-hover:text-blue-500 transition-colors duration-300" />
+                      </p>
                     </div>
+                      <ArrowUpRight className="h-4 w-4 text-gray-400 group-hover:text-blue-500 transition-colors duration-300" />
+                  </div>
                   </button>
 
                   <button
@@ -681,7 +664,7 @@ const DiarySettings = memo(() => {
                     <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                         <Activity className="h-4 w-4 text-white" />
-                      </div>
+                    </div>
                       <div className="text-left">
                         <p className="font-medium text-gray-900 dark:text-gray-100">
                           Habits Data
@@ -689,7 +672,7 @@ const DiarySettings = memo(() => {
                         <p className="text-xs text-gray-600 dark:text-gray-400">
                           Habit tracking
                         </p>
-                      </div>
+                  </div>
                       <ArrowUpRight className="h-4 w-4 text-gray-400 group-hover:text-orange-500 transition-colors duration-300" />
                     </div>
                   </button>
@@ -708,8 +691,8 @@ const DiarySettings = memo(() => {
                         </p>
                         <p className="text-xs text-gray-600 dark:text-gray-400">
                           Mood & wellness
-                        </p>
-                      </div>
+                      </p>
+                    </div>
                       <ArrowUpRight className="h-4 w-4 text-gray-400 group-hover:text-pink-500 transition-colors duration-300" />
                     </div>
                   </button>
@@ -721,7 +704,7 @@ const DiarySettings = memo(() => {
                     <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-indigo-500 to-violet-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                         <Shield className="h-4 w-4 text-white" />
-                      </div>
+                    </div>
                       <div className="text-left">
                         <p className="font-medium text-gray-900 dark:text-gray-100">
                           Complete Backup
@@ -729,58 +712,11 @@ const DiarySettings = memo(() => {
                         <p className="text-xs text-gray-600 dark:text-gray-400">
                           Full diary export
                         </p>
-                      </div>
-                      <ArrowUpRight className="h-4 w-4 text-gray-400 group-hover:text-indigo-500 transition-colors duration-300" />
-                    </div>
-                  </button>
-                </div>
-              </div>
-
-              {/* Comprehensive Excel Report - NEW! */}
-              <div className="space-y-4 pt-6 border-t border-gray-200/50 dark:border-gray-700/50">
-                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                  <Sparkles className="h-4 w-4" />
-                  🚀 Interactive Excel Reports with Wellness Analytics
-                </h4>
-                
-                <button
-                  onClick={exportComprehensiveDiaryReport}
-                  className="w-full glass-panel p-6 rounded-xl hover:bg-gradient-to-r hover:from-emerald-50/50 hover:to-green-50/50 dark:hover:from-emerald-900/20 dark:hover:to-green-900/20 transition-all duration-300 group border-2 border-emerald-200/50 dark:border-emerald-800/50"
-                >
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <motion.div
-                        animate={{ rotate: [0, 360] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                      >
-                        <Heart className="h-6 w-6 text-white" />
-                      </motion.div>
-                    </div>
-                    <div className="text-left flex-1">
-                      <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
-                        📊 Download All Combined Diary Data
-                      </h4>
-                      <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium mb-2">
-                        Interactive Excel with Wellness Charts & Mood Analytics
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        <span className="text-xs px-2 py-1 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 rounded-full">
-                          📈 Mood Patterns
-                        </span>
-                        <span className="text-xs px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 rounded-full">
-                          🏃 Habit Analytics
-                        </span>
-                        <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-full">
-                          🧘 Wellness Trends
-                        </span>
-                        <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 rounded-full">
-                          📝 Journal Insights
-                        </span>
-                      </div>
-                    </div>
-                    <ArrowUpRight className="h-6 w-6 text-gray-400 group-hover:text-emerald-500 transition-colors duration-300" />
                   </div>
-                </button>
+                      <ArrowUpRight className="h-4 w-4 text-gray-400 group-hover:text-indigo-500 transition-colors duration-300" />
+                </div>
+                  </button>
+              </div>
               </div>
 
               {/* Import & Other Actions */}
@@ -801,16 +737,16 @@ const DiarySettings = memo(() => {
                       ) : (
                         <Upload className="h-4 w-4 text-white" />
                       )}
-                    </div>
+                </div>
                     <div className="text-left">
                       <p className="font-medium text-gray-900 dark:text-gray-100">
                         {importing ? 'Importing...' : 'Import Data'}
                       </p>
                       <p className="text-xs text-gray-600 dark:text-gray-400">
                         Restore from backup
-                      </p>
-                    </div>
-                  </div>
+                          </p>
+                        </div>
+                      </div>
                 </button>
 
                 <button
@@ -827,11 +763,11 @@ const DiarySettings = memo(() => {
                       </p>
                       <p className="text-xs text-gray-600 dark:text-gray-400">
                         Generate demo entries
-                      </p>
-                    </div>
-                  </div>
+                            </p>
+                          </div>
+                        </div>
                 </button>
-              </div>
+                      </div>
 
               <input
                 id="diary-import-file"
@@ -840,14 +776,14 @@ const DiarySettings = memo(() => {
                 onChange={handleImport}
                 className="hidden"
               />
-            </div>
+                    </div>
           </Card>
-        </div>
+                  </div>
       </motion.div>
 
 
 
-      {/* Danger Zone */}
+                  {/* Danger Zone */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -861,15 +797,15 @@ const DiarySettings = memo(() => {
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-red-500 to-pink-500 flex items-center justify-center">
                   <Shield className="h-5 w-5 text-white" />
                 </div>
-                <div>
+                        <div>
                   <h3 className="text-lg font-semibold text-red-600 dark:text-red-400">
-                    Danger Zone
+                      Danger Zone
                   </h3>
                   <p className="text-sm text-red-600/80 dark:text-red-400/80">
                     Irreversible actions - proceed with caution
-                  </p>
+                    </p>
+                  </div>
                 </div>
-              </div>
               
               <button
                 onClick={() => setShowDeleteModal(true)}
@@ -880,10 +816,10 @@ const DiarySettings = memo(() => {
                   <span className="font-medium text-red-600 dark:text-red-400">
                     Delete All Diary Data
                   </span>
-                </div>
+                    </div>
               </button>
-            </div>
-          </Card>
+          </div>
+        </Card>
         </div>
       </motion.div>
 
@@ -904,9 +840,9 @@ const DiarySettings = memo(() => {
                 <p className="text-sm text-red-700 dark:text-red-300">
                   All your diary entries, habits, and settings will be permanently deleted.
                 </p>
-              </div>
-            </div>
-            
+        </div>
+      </div>
+
             <div className="flex space-x-3">
               <Button
                 variant="secondary"
@@ -915,15 +851,15 @@ const DiarySettings = memo(() => {
               >
                 Cancel
               </Button>
-              <Button
+          <Button 
                 variant="danger"
                 onClick={deleteAllData}
                 className="flex-1"
               >
                 Delete Everything
-              </Button>
+          </Button>
             </div>
-          </motion.div>
+        </motion.div>
         </div>
       )}
     </div>
@@ -932,4 +868,4 @@ const DiarySettings = memo(() => {
 
 DiarySettings.displayName = 'DiarySettings';
 
-export default DiarySettings;
+export default DiarySettings; 
