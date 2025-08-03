@@ -10,17 +10,26 @@ class NotificationService {
   }
 
   async init() {
-    // Request notification permission
-    if ('Notification' in window) {
-      this.permission = await Notification.requestPermission();
-      console.log('Notification permission:', this.permission);
+    // Check if Notification API is supported
+    if (!('Notification' in window)) {
+      console.warn('This browser does not support notifications');
+      this.permission = 'denied';
+      return;
     }
     
-    // Setup existing reminders
-    this.setupAllReminders();
+    // Get current permission status
+    this.permission = Notification.permission;
+    console.log('Notification permission:', this.permission);
+    
+    // Setup existing reminders only if permission is granted
+    if (this.permission === 'granted') {
+      this.setupAllReminders();
+    }
     
     // Check for due journals on app load
-    this.checkDueJournals();
+    setTimeout(() => {
+      this.checkDueJournals();
+    }, 2000); // Wait 2 seconds after app loads
   }
 
   loadReminders() {
@@ -240,17 +249,25 @@ class NotificationService {
   }
 
   showNotification(title, body, options = {}) {
+    // Check if Notification API is supported
+    if (!('Notification' in window)) {
+      console.warn('Notifications not supported in this browser');
+      return;
+    }
+    
+    // Check permission
     if (this.permission !== 'granted') {
-      console.log('Notification permission not granted');
+      console.log('Notification permission not granted:', this.permission);
       return;
     }
 
     const defaultOptions = {
       body,
-      icon: '/favicon.ico',
-      badge: '/favicon.ico',
+      icon: '/favicon.svg',
+      badge: '/favicon.svg',
       tag: 'diary-notification',
       requireInteraction: true,
+      silent: false,
       ...options
     };
 
@@ -261,13 +278,16 @@ class NotificationService {
         window.focus();
         notification.close();
         
-        // Navigate to appropriate journal page
+        // Navigate to appropriate journal page using correct React Router paths
         if (options.tag?.includes('daily')) {
-          window.location.hash = '#/daily';
+          window.location.href = '/diary/daily';
         } else if (options.tag?.includes('weekly')) {
-          window.location.hash = '#/weekly';
+          window.location.href = '/diary/weekly';
         } else if (options.tag?.includes('monthly')) {
-          window.location.hash = '#/monthly';
+          window.location.href = '/diary/monthly';
+        } else {
+          // Default to diary dashboard
+          window.location.href = '/diary';
         }
       };
       
@@ -330,11 +350,32 @@ class NotificationService {
   }
 
   getReminderStatus() {
+    // Update permission status from browser
+    if ('Notification' in window) {
+      this.permission = Notification.permission;
+    }
+    
     return {
       permission: this.permission,
       activeReminders: Array.from(this.intervals.keys()),
-      totalReminders: Object.values(this.reminders).filter(r => r.enabled).length
+      totalReminders: Object.values(this.reminders).filter(r => r.enabled).length,
+      supported: 'Notification' in window
     };
+  }
+
+  // Method to refresh the service after permission changes
+  refresh() {
+    if ('Notification' in window) {
+      this.permission = Notification.permission;
+      
+      // Clear existing reminders
+      this.clearAllReminders();
+      
+      // Setup reminders if permission is granted
+      if (this.permission === 'granted') {
+        this.setupAllReminders();
+      }
+    }
   }
 }
 

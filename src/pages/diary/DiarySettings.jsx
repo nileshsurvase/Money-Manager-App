@@ -126,8 +126,21 @@ const DiarySettings = () => {
 
   const requestNotificationPermission = async () => {
     if ('Notification' in window) {
-      const permission = await Notification.requestPermission();
-      setNotificationStatus(prev => ({ ...prev, permission }));
+      try {
+        const permission = await Notification.requestPermission();
+        setNotificationStatus(prev => ({ ...prev, permission }));
+        
+        // Also update the notification service permission
+        notificationService.permission = permission;
+        
+        // Refresh the notification service to pick up new permission
+        notificationService.refresh();
+        
+        // Reload status to update UI
+        loadNotificationStatus();
+      } catch (error) {
+        console.error('Error requesting notification permission:', error);
+      }
     }
   };
 
