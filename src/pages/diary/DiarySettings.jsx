@@ -845,35 +845,7 @@ const DiarySettings = memo(() => {
         </div>
       </motion.div>
 
-      {/* Mobile Performance */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-violet-500/5 rounded-2xl blur-xl"></div>
-          <Card variant="glass" className="relative">
-            <div className="flex items-center justify-center space-x-6 py-6">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 flex items-center justify-center">
-                <PenTool className="h-8 w-8 text-white" />
-              </div>
-              <div className="text-center">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                  <Zap className="h-5 w-5 text-indigo-500" />
-                  Optimized Journaling
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                  Smooth writing experience on mobile
-                </p>
-              </div>
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center">
-                <CheckCircle className="h-8 w-8 text-white" />
-              </div>
-            </div>
-          </Card>
-        </div>
-      </motion.div>
+
 
       {/* Danger Zone */}
       <motion.div

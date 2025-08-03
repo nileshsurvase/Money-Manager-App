@@ -1,35 +1,54 @@
 // Notification Service for Diary App
 import { hasEntryForToday, getTodaysDue } from './diaryStorage';
+import { Capacitor } from '@capacitor/core';
 
 class NotificationService {
   constructor() {
     this.permission = 'default';
     this.reminders = this.loadReminders();
     this.intervals = new Map();
+    this.isCapacitor = Capacitor.isNativePlatform();
+    this.LocalNotifications = null;
     this.init();
   }
 
   async init() {
-    // Check if Notification API is supported
-    if (!('Notification' in window)) {
-      console.warn('This browser does not support notifications');
+    try {
+      if (this.isCapacitor) {
+        // Import Capacitor LocalNotifications for mobile
+        const { LocalNotifications } = await import('@capacitor/local-notifications');
+        this.LocalNotifications = LocalNotifications;
+        
+        // Request permissions for mobile
+        const permResult = await LocalNotifications.requestPermissions();
+        this.permission = permResult.display === 'granted' ? 'granted' : 'denied';
+        console.log('Mobile notification permission:', this.permission);
+      } else {
+        // Web browser notifications
+        if (!('Notification' in window)) {
+          console.warn('This browser does not support notifications');
+          this.permission = 'denied';
+          return;
+        }
+        
+        // Get current permission status
+        this.permission = Notification.permission;
+        console.log('Web notification permission:', this.permission);
+      }
+      
+      // Setup existing reminders only if permission is granted
+      if (this.permission === 'granted') {
+        this.setupAllReminders();
+      }
+      
+      // Check for due journals on app load
+      setTimeout(() => {
+        this.checkDueJournals();
+      }, 2000); // Wait 2 seconds after app loads
+    } catch (error) {
+      console.error('Error initializing notification service:', error);
       this.permission = 'denied';
-      return;
     }
-    
-    // Get current permission status
-    this.permission = Notification.permission;
-    console.log('Notification permission:', this.permission);
-    
-    // Setup existing reminders only if permission is granted
-    if (this.permission === 'granted') {
-      this.setupAllReminders();
-    }
-    
-    // Check for due journals on app load
-    setTimeout(() => {
-      this.checkDueJournals();
-    }, 2000); // Wait 2 seconds after app loads
   }
 
   loadReminders() {
@@ -248,56 +267,88 @@ class NotificationService {
     this.intervals.clear();
   }
 
-  showNotification(title, body, options = {}) {
-    // Check if Notification API is supported
-    if (!('Notification' in window)) {
-      console.warn('Notifications not supported in this browser');
-      return;
-    }
-    
+  async showNotification(title, body, options = {}) {
     // Check permission
     if (this.permission !== 'granted') {
       console.log('Notification permission not granted:', this.permission);
       return;
     }
 
-    const defaultOptions = {
-      body,
-      icon: '/favicon.svg',
-      badge: '/favicon.svg',
-      tag: 'diary-notification',
-      requireInteraction: true,
-      silent: false,
-      ...options
-    };
-
     try {
-      const notification = new Notification(title, defaultOptions);
-      
-      notification.onclick = () => {
-        window.focus();
-        notification.close();
-        
-        // Navigate to appropriate journal page using correct React Router paths
-        if (options.tag?.includes('daily')) {
-          window.location.href = '/diary/daily';
-        } else if (options.tag?.includes('weekly')) {
-          window.location.href = '/diary/weekly';
-        } else if (options.tag?.includes('monthly')) {
-          window.location.href = '/diary/monthly';
-        } else {
-          // Default to diary dashboard
-          window.location.href = '/diary';
+      if (this.isCapacitor && this.LocalNotifications) {
+        // Use Capacitor LocalNotifications for mobile
+        const notificationId = Date.now();
+        await this.LocalNotifications.schedule({
+          notifications: [
+            {
+              title,
+              body,
+              id: notificationId,
+              schedule: { at: new Date(Date.now() + 1000) }, // Schedule 1 second from now
+              sound: 'default',
+              attachments: [],
+              actionTypeId: '',
+              extra: {
+                tag: options.tag || 'diary-notification',
+                route: this.getRouteFromTag(options.tag)
+              }
+            }
+          ]
+        });
+
+        // Listen for notification actions
+        this.LocalNotifications.addListener('localNotificationActionPerformed', (notification) => {
+          if (notification.notification.extra?.route) {
+            window.location.href = notification.notification.extra.route;
+          }
+        });
+      } else {
+        // Web browser notifications
+        if (!('Notification' in window)) {
+          console.warn('Notifications not supported in this browser');
+          return;
         }
-      };
-      
-      // Auto-close after 10 seconds
-      setTimeout(() => {
-        notification.close();
-      }, 10000);
-      
+
+        const defaultOptions = {
+          body,
+          icon: '/icons/icon-192x192.svg',
+          badge: '/icons/icon-192x192.svg',
+          tag: 'diary-notification',
+          requireInteraction: true,
+          silent: false,
+          ...options
+        };
+
+        const notification = new Notification(title, defaultOptions);
+        
+        notification.onclick = () => {
+          window.focus();
+          notification.close();
+          
+          // Navigate to appropriate journal page
+          const route = this.getRouteFromTag(options.tag);
+          window.location.href = route;
+        };
+        
+        // Auto-close after 10 seconds
+        setTimeout(() => {
+          notification.close();
+        }, 10000);
+      }
     } catch (error) {
       console.error('Error showing notification:', error);
+    }
+  }
+
+  getRouteFromTag(tag) {
+    if (tag?.includes('daily')) {
+      return '/diary/daily';
+    } else if (tag?.includes('weekly')) {
+      return '/diary/weekly';
+    } else if (tag?.includes('monthly')) {
+      return '/diary/monthly';
+    } else {
+      return '/diary';
     }
   }
 
@@ -338,8 +389,8 @@ class NotificationService {
   }
 
   // Test notification method
-  testNotification() {
-    this.showNotification('Test Notification', 'This is a test notification from your diary app!', {
+  async testNotification() {
+    await this.showNotification('🧪 Test Notification', 'This is a test notification from ClarityOS Diary! If you can see this, notifications are working perfectly. 🎉', {
       icon: '🧪',
       tag: 'test'
     });
@@ -364,9 +415,15 @@ class NotificationService {
   }
 
   // Method to refresh the service after permission changes
-  refresh() {
-    if ('Notification' in window) {
-      this.permission = Notification.permission;
+  async refresh() {
+    try {
+      if (this.isCapacitor && this.LocalNotifications) {
+        // Check mobile permissions
+        const permResult = await this.LocalNotifications.checkPermissions();
+        this.permission = permResult.display === 'granted' ? 'granted' : 'denied';
+      } else if ('Notification' in window) {
+        this.permission = Notification.permission;
+      }
       
       // Clear existing reminders
       this.clearAllReminders();
@@ -375,6 +432,8 @@ class NotificationService {
       if (this.permission === 'granted') {
         this.setupAllReminders();
       }
+    } catch (error) {
+      console.error('Error refreshing notification service:', error);
     }
   }
 }

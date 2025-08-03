@@ -23,6 +23,14 @@ const config: CapacitorConfig = {
     },
     App: {
       allowMixedContent: true
+    },
+    LocalNotifications: {
+      smallIcon: "ic_stat_icon_config_sample",
+      iconColor: "#ff6b35",
+      sound: "beep.wav"
+    },
+    PushNotifications: {
+      presentationOptions: ["badge", "sound", "alert"]
     }
   }
 };

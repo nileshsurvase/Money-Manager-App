@@ -8,6 +8,9 @@ import { Capacitor } from '@capacitor/core'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { SplashScreen } from '@capacitor/splash-screen'
 
+// Initialize data persistence service
+import dataPersistenceService from './utils/dataPersistence'
+
 // Initialize mobile app
 const initializeApp = async () => {
   if (Capacitor.isNativePlatform()) {
