@@ -88,7 +88,7 @@ export const AppProvider = ({ children }) => {
     'coreos': {
       id: 'coreos',
       name: 'CoreOS',
-      icon: '⚡',
+      icon: '😊',
       description: 'Life Management System',
       dashboardRoute: '/coreos'
     },

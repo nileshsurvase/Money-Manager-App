@@ -248,12 +248,20 @@ const Layout = memo(({ children }) => {
                             ? 'bg-gradient-to-br from-emerald-500 to-green-600' 
                             : app.id === 'goals'
                             ? 'bg-gradient-to-br from-violet-500 to-purple-600'
+                            : app.id === 'coreos'
+                            ? 'bg-gradient-to-br from-purple-400 to-purple-500'
+                            : app.id === 'freedomos'
+                            ? 'bg-gradient-to-br from-blue-500 to-blue-600'
                             : 'bg-gradient-to-br from-orange-500 to-red-500'
                         }`}>
                           {app.id === 'my-diary' ? (
                             <span className="text-white text-sm">📖</span>
                           ) : app.id === 'goals' ? (
                             <span className="text-white text-sm">🎯</span>
+                          ) : app.id === 'coreos' ? (
+                            <span className="text-white text-sm">😊</span>
+                          ) : app.id === 'freedomos' ? (
+                            <span className="text-white text-sm">🏆</span>
                           ) : (
                             <span className="text-white text-sm">💰</span>
                           )}
@@ -449,12 +457,20 @@ const Layout = memo(({ children }) => {
                             ? 'bg-gradient-to-br from-emerald-600 to-green-700' 
                             : app.id === 'goals'
                             ? 'bg-gradient-to-br from-violet-600 to-purple-700'
+                            : app.id === 'coreos'
+                            ? 'bg-gradient-to-br from-purple-400 to-purple-500'
+                            : app.id === 'freedomos'
+                            ? 'bg-gradient-to-br from-blue-500 to-blue-600'
                             : 'bg-gradient-to-br from-orange-600 to-red-700'
                         }`}>
                           {app.id === 'my-diary' ? (
                             <span className="text-white text-lg">📖</span>
                           ) : app.id === 'goals' ? (
                             <span className="text-white text-lg">🎯</span>
+                          ) : app.id === 'coreos' ? (
+                            <span className="text-white text-lg">😊</span>
+                          ) : app.id === 'freedomos' ? (
+                            <span className="text-white text-lg">🏆</span>
                           ) : (
                             <span className="text-white text-lg">💰</span>
                           )}

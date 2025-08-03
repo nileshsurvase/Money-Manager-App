@@ -114,9 +114,10 @@ export const getTodayHabits = () => {
   const habits = getFromStorage(COREOS_STORAGE_KEYS.HABITS, []);
   const today = format(new Date(), 'yyyy-MM-dd');
   
-  return habits.filter(habit => habit.isActive).map(habit => ({
+  return habits.filter(habit => habit && habit.isActive).map(habit => ({
     ...habit,
-    completed: habit.completions.some(completion => 
+    completions: habit.completions || [], // Ensure completions array exists
+    completed: (habit.completions || []).some(completion => 
       format(new Date(completion), 'yyyy-MM-dd') === today
     )
   }));
