@@ -626,7 +626,7 @@ const DiarySettings = memo(() => {
                       >
                         <ArrowUpRight className="h-4 w-4 text-gray-400 group-hover:text-emerald-500 transition-colors duration-300" />
                       </motion.div>
-                      </div>
+                        </div>
                   </motion.button>
 
                   <motion.button

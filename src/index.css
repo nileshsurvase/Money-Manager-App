@@ -15,6 +15,21 @@
     background-attachment: fixed;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     line-height: 1.6;
+    
+    /* Performance optimizations */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    
+    /* Hardware acceleration for smooth scrolling */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: scroll-position;
+    
+    /* Touch optimizations */
+    -webkit-overflow-scrolling: touch;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
   /* Responsive Typography */
@@ -557,3 +572,141 @@
   }
 }
 
+/* ========================================
+   PERFORMANCE OPTIMIZATIONS
+   ======================================== */
+
+/* Global performance optimizations */
+* {
+  /* Hardware acceleration for all elements */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-perspective: 1000;
+  perspective: 1000;
+}
+
+/* High-performance button styles */
+.perf-button {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform, opacity;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.perf-button:active {
+  transform: translateZ(0) scale(0.98);
+  -webkit-transform: translateZ(0) scale(0.98);
+}
+
+/* Ultra-smooth card animations */
+.perf-card {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform, opacity, box-shadow;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.perf-card:hover {
+  transform: translateZ(0) translateY(-2px) scale(1.01);
+  -webkit-transform: translateZ(0) translateY(-2px) scale(1.01);
+}
+
+/* Optimized scroll containers */
+.perf-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  will-change: scroll-position;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* Touch-optimized interactive elements */
+.perf-touch {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: pointer;
+}
+
+/* 60fps animation class */
+.perf-60fps {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* Mobile-optimized text rendering */
+.perf-text {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-display: swap;
+}
+
+/* GPU-accelerated transitions */
+.perf-transition {
+  transition-property: transform, opacity;
+  transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform, opacity;
+}
+
+/* Optimized shadow performance */
+.perf-shadow {
+  will-change: box-shadow;
+  transition: box-shadow 0.15s ease-out;
+}
+
+/* Memory-efficient gradients */
+.perf-gradient {
+  background-attachment: fixed;
+  will-change: background-position;
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .perf-button,
+  .perf-card,
+  .perf-transition,
+  .perf-60fps {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+    will-change: auto !important;
+  }
+}
+
+/* Mobile performance optimizations */
+@media (max-width: 768px) {
+  /* Reduce animations on mobile for better performance */
+  .perf-mobile-reduced {
+    transition-duration: 0.1s !important;
+    animation-duration: 0.1s !important;
+  }
+  
+  /* Optimize touch targets */
+  .perf-touch {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Better scrolling on mobile */
+  .perf-scroll {
+    scroll-snap-type: y proximity;
+    overscroll-behavior-y: contain;
+  }
+}

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { memo, useMemo } from 'react';
+import { cardAnimation, hardwareAcceleration } from '../utils/performance';
 
 const Card = memo(({ 
   children, 
@@ -31,20 +32,16 @@ const Card = memo(({
   }, [variant, padding, className, variantClasses, paddingClasses]);
 
   const variants = useMemo(() => ({
-    initial: { opacity: 0, y: 20 },
-    animate: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.3, ease: "easeOut" }
-    },
+    ...cardAnimation,
     hover: hover ? { 
       y: -4, 
       scale: 1.02,
+      ...hardwareAcceleration,
       transition: { type: "spring", stiffness: 400, damping: 25 }
     } : {},
     tap: onClick ? { 
       scale: 0.98,
-      transition: { type: "spring", stiffness: 400, damping: 25 }
+      transition: { type: "spring", stiffness: 600, damping: 30 }
     } : {},
   }), [hover, onClick]);
 
@@ -55,8 +52,9 @@ const Card = memo(({
       whileHover="hover"
       whileTap="tap"
       variants={variants}
-      className={`${cardClass} ${onClick ? 'cursor-pointer' : ''}`}
+      className={`${cardClass} perf-card perf-60fps ${onClick ? 'cursor-pointer perf-touch' : ''}`}
       onClick={onClick}
+      style={hardwareAcceleration}
       {...props}
     >
       {children}

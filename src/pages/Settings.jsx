@@ -284,11 +284,11 @@ const Settings = memo(() => {
                         animate={{ rotate: isDark ? 180 : 0 }}
                         transition={{ duration: 0.3 }}
                       >
-                        {isDark ? (
-                          <Moon className="h-5 w-5 text-indigo-500" />
-                        ) : (
-                          <Sun className="h-5 w-5 text-yellow-500" />
-                        )}
+                      {isDark ? (
+                        <Moon className="h-5 w-5 text-indigo-500" />
+                      ) : (
+                        <Sun className="h-5 w-5 text-yellow-500" />
+                      )}
                       </motion.div>
                       <div>
                         <p className="font-medium text-gray-900 dark:text-gray-100">
@@ -314,7 +314,7 @@ const Settings = memo(() => {
                       />
                     </motion.button>
                   </div>
-                </motion.div>
+          </motion.div>
 
                 {/* Currency Selection */}
                 <div className="glass-panel p-4 rounded-xl">
@@ -547,7 +547,7 @@ const Settings = memo(() => {
                     </div>
                   </div>
                 </button>
-              </div>
+                </div>
 
               <input
                 id="import-file"

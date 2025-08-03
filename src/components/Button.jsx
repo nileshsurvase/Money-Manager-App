@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { hoverAnimation, hardwareAcceleration } from '../utils/performance';
 
 const Button = ({ 
   children, 
@@ -31,12 +32,13 @@ const Button = ({
     large: 'text-base sm:text-lg px-6 py-3 sm:px-8 sm:py-4 min-h-[48px] sm:min-h-[52px]',
   };
 
-  const buttonClass = `${baseClasses} ${variants[variant]} ${sizes[size]} ${fullWidth ? 'w-full' : ''} ${className}`;
+  const buttonClass = `${baseClasses} ${variants[variant]} ${sizes[size]} ${fullWidth ? 'w-full' : ''} perf-button perf-touch perf-60fps ${className}`;
 
   const buttonVariants = {
     initial: { scale: 1 },
-    hover: disabled || loading ? {} : { scale: 1.02 },
-    tap: disabled || loading ? {} : { scale: 0.98 },
+    ...hoverAnimation,
+    hover: disabled || loading ? {} : hoverAnimation.whileHover,
+    tap: disabled || loading ? {} : hoverAnimation.whileTap,
   };
 
   return (
@@ -47,6 +49,7 @@ const Button = ({
       whileTap="tap"
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className={buttonClass}
+      style={hardwareAcceleration}
       onClick={onClick}
       disabled={disabled || loading}
       type={type}

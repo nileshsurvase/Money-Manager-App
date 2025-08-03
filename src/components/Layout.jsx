@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useGestureOptimization, useSmoothScroll, mobilePerfOptimizations } from '../utils/performance';
+import PerformanceMonitor from './PerformanceMonitor';
 import { 
   Home, 
   Receipt, 
@@ -51,6 +53,10 @@ const Layout = memo(({ children }) => {
   const { currentApp, switchApp, apps, currentAppInfo } = useApp();
   const location = useLocation();
   const dropdownRef = useRef(null);
+  
+  // Performance optimizations
+  useGestureOptimization();
+  const scrollRef = useSmoothScroll();
 
   // Close dropdown when sidebar closes
   useEffect(() => {
@@ -617,17 +623,20 @@ const Layout = memo(({ children }) => {
         </div>
 
         {/* Page content */}
-        <main className="p-4 sm:p-6 lg:p-8">
+        <main className="p-4 sm:p-6 lg:p-8 perf-scroll" ref={scrollRef} style={mobilePerfOptimizations}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="max-w-7xl mx-auto"
+            className="max-w-7xl mx-auto perf-60fps"
           >
             {children}
           </motion.div>
         </main>
       </div>
+      
+      {/* Performance Monitor (Development Only) */}
+      <PerformanceMonitor />
     </div>
   );
 });
